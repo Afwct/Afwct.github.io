@@ -1,0 +1,297 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site, projects, notes } from '../data/site';
+---
+
+<BaseLayout title={site.title} description={site.description}>
+	<div data-home>
+		<section class="home-hero container">
+			<div class="home-hero__content">
+				<p class="section-label" data-hero-eyebrow>Developer · Builder</p>
+				<h1 class="home-hero__title" data-hero-title>
+					你好，我是 <span class="text-accent">{site.name}</span>
+				</h1>
+				<p class="home-hero__desc lead" data-hero-subtitle>
+					在这里记录项目、笔记与实验。站点由 Astro 构建，动效由 GSAP 驱动，发布于 {site.domain}。
+				</p>
+				<div class="home-hero__cta" data-hero-cta>
+					<a href="/projects" class="btn">查看项目</a>
+					<a href="/about" class="btn btn--ghost">了解更多</a>
+				</div>
+			</div>
+			<div class="home-hero__visual" data-hero-visual aria-hidden="true">
+				<div class="orbit" data-orbit>
+					<span class="orbit__ring"></span>
+					<span class="orbit__dot orbit__dot--1"></span>
+					<span class="orbit__dot orbit__dot--2"></span>
+					<span class="orbit__dot orbit__dot--3"></span>
+				</div>
+				<div class="orbit__core">afwct</div>
+			</div>
+		</section>
+
+		<div class="container"><div class="divider" data-line></div></div>
+
+		<section class="section container" data-stats>
+			<p class="section-label" data-animate>概览</p>
+			<div class="stats">
+				<div class="stats__item" data-stat>
+					<span class="stats__num">5+</span>
+					<span class="stats__label">页面</span>
+				</div>
+				<div class="stats__item" data-stat>
+					<span class="stats__num">GSAP</span>
+					<span class="stats__label">滚动动效</span>
+				</div>
+				<div class="stats__item" data-stat>
+					<span class="stats__num">Astro</span>
+					<span class="stats__label">静态生成</span>
+				</div>
+				<div class="stats__item" data-stat>
+					<span class="stats__num">{site.name}</span>
+					<span class="stats__label">.{site.domain.split('.').slice(1).join('.')}</span>
+				</div>
+			</div>
+		</section>
+
+		<section class="section container">
+			<div class="section-head" data-animate>
+				<p class="section-label">精选项目</p>
+				<h2>最近在做什么</h2>
+			</div>
+			<div class="card-grid">
+				{
+					projects.slice(0, 3).map((p) => (
+						<article class="card" data-card>
+							<div class="card__tags">
+								{p.tags.map((t) => (
+									<span class="tag">{t}</span>
+								))}
+							</div>
+							<h3>{p.title}</h3>
+							<p>{p.desc}</p>
+							<a href={p.link} target={p.link.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+								查看 →
+							</a>
+						</article>
+					))
+				}
+			</div>
+			<p class="section-more" data-animate>
+				<a href="/projects">全部项目 →</a>
+			</p>
+		</section>
+
+		<section class="section section--alt">
+			<div class="container">
+				<div class="section-head" data-animate>
+					<p class="section-label">笔记</p>
+					<h2>阅读与备忘</h2>
+				</div>
+				<ul class="note-list">
+					{
+						notes.map((n) => (
+							<li data-animate>
+								<a href={n.href} class="note-list__item">
+									<span class="note-list__date">{n.date}</span>
+									<span class="note-list__title">{n.title}</span>
+									<span class="note-list__summary">{n.summary}</span>
+								</a>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+		</section>
+	</div>
+</BaseLayout>
+
+<style>
+	.text-accent {
+		color: var(--accent);
+	}
+
+	.home-hero {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 3rem;
+		align-items: center;
+		padding: clamp(3rem, 8vw, 6rem) 0 clamp(2rem, 5vw, 4rem);
+		min-height: calc(100vh - var(--header-h) - 4rem);
+	}
+
+	.home-hero__title {
+		font-size: clamp(2.25rem, 5vw, 3.75rem);
+		max-width: 14ch;
+	}
+
+	.home-hero__desc {
+		font-size: 1.125rem;
+		max-width: 38ch;
+		margin: 1.25rem 0 2rem;
+	}
+
+	.home-hero__cta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+	}
+
+	.home-hero__visual {
+		position: relative;
+		aspect-ratio: 1;
+		max-width: 380px;
+		justify-self: center;
+	}
+
+	.orbit {
+		position: absolute;
+		inset: 0;
+	}
+
+	.orbit__ring {
+		position: absolute;
+		inset: 8%;
+		border: 1px dashed rgba(110, 231, 183, 0.35);
+		border-radius: 50%;
+	}
+
+	.orbit__dot {
+		position: absolute;
+		width: 10px;
+		height: 10px;
+		background: var(--accent);
+		border-radius: 50%;
+		box-shadow: 0 0 20px var(--glow);
+	}
+
+	.orbit__dot--1 {
+		top: 5%;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+	.orbit__dot--2 {
+		bottom: 20%;
+		left: 8%;
+	}
+	.orbit__dot--3 {
+		bottom: 30%;
+		right: 10%;
+		background: var(--accent-warm);
+	}
+
+	.orbit__core {
+		position: absolute;
+		inset: 28%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: var(--font-display);
+		font-weight: 800;
+		font-size: 1.5rem;
+		letter-spacing: 0.08em;
+		color: var(--text);
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: 50%;
+	}
+
+	.divider {
+		height: 1px;
+		background: linear-gradient(90deg, transparent, var(--accent), transparent);
+		opacity: 0.5;
+	}
+
+	.stats {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+		gap: 1.5rem;
+		margin-top: 1.5rem;
+	}
+
+	.stats__item {
+		text-align: center;
+		padding: 1.5rem;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+	}
+
+	.stats__num {
+		display: block;
+		font-family: var(--font-display);
+		font-size: 1.75rem;
+		font-weight: 800;
+		color: var(--accent);
+		margin-bottom: 0.25rem;
+	}
+
+	.stats__label {
+		font-size: 0.85rem;
+		color: var(--text-muted);
+	}
+
+	.section-head {
+		margin-bottom: 2rem;
+	}
+
+	.section-more {
+		margin-top: 2rem;
+		text-align: center;
+	}
+
+	.section--alt {
+		background: var(--bg-elevated);
+		border-block: 1px solid var(--border);
+	}
+
+	.note-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.note-list__item {
+		display: grid;
+		grid-template-columns: 4rem 1fr;
+		grid-template-rows: auto auto;
+		gap: 0.25rem 1.5rem;
+		padding: 1.25rem 0;
+		border-bottom: 1px solid var(--border);
+		text-decoration: none;
+		color: inherit;
+		transition: padding-left 0.25s ease;
+	}
+
+	.note-list__item:hover {
+		padding-left: 0.5rem;
+	}
+
+	.note-list__date {
+		grid-row: 1 / 3;
+		font-size: 0.8rem;
+		color: var(--text-muted);
+		font-weight: 600;
+	}
+
+	.note-list__title {
+		font-family: var(--font-display);
+		font-weight: 700;
+		color: var(--text);
+	}
+
+	.note-list__summary {
+		font-size: 0.9rem;
+		color: var(--text-muted);
+	}
+
+	@media (max-width: 860px) {
+		.home-hero {
+			grid-template-columns: 1fr;
+		}
+		.home-hero__visual {
+			order: -1;
+			max-width: 260px;
+		}
+	}
+</style>

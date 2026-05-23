@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { projects } from '../data/site';
+---
+
+<BaseLayout title="项目" description="afwct 的项目与实验集合。">
+	<PageHero
+		eyebrow="Projects"
+		title="项目"
+		subtitle="开源仓库、个人站点与实验性前端的汇总。"
+	/>
+
+	<section class="section container">
+		<div class="card-grid">
+			{
+				projects.map((p) => (
+					<article class="card card--project" data-card>
+						<div class="card__tags">
+							{p.tags.map((t) => (
+								<span class="tag">{t}</span>
+							))}
+						</div>
+						<h3>{p.title}</h3>
+						<p>{p.desc}</p>
+						<a
+							class="card__link"
+							href={p.link}
+							target={p.link.startsWith('http') ? '_blank' : undefined}
+							rel={p.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+						>
+							打开项目 →
+						</a>
+					</article>
+				))
+			}
+		</div>
+	</section>
+
+	<section class="section container cta-block" data-animate>
+		<h2>有更多想法？</h2>
+		<p>欢迎通过 GitHub Issue 或邮件交流协作与反馈。</p>
+		<a href="/contact" class="btn">联系我</a>
+	</section>
+</BaseLayout>
+
+<style>
+	.card--project {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.card--project p {
+		flex: 1;
+	}
+
+	.card__link {
+		margin-top: 1rem;
+		font-weight: 600;
+		font-size: 0.9rem;
+	}
+
+	.cta-block {
+		text-align: center;
+		padding: 3rem;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+	}
+
+	.cta-block h2 {
+		margin-bottom: 0.5rem;
+	}
+</style>

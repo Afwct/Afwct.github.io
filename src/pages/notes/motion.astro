@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+---
+
+<BaseLayout title="动效设计备忘" description="GSAP ScrollTrigger 与页面过渡实践。">
+	<PageHero
+		eyebrow="Notes / Motion"
+		title="动效设计备忘"
+		subtitle="本站 GSAP 动效的实现思路与可访问性注意点。"
+	/>
+
+	<article class="section container prose" data-animate>
+		<h2>使用的插件</h2>
+		<p>
+			注册 <code>ScrollTrigger</code> 处理滚动进入视口的元素淡入；
+			首页 Hero 使用时间轴 <code>timeline</code> 编排入场顺序。
+		</p>
+
+		<h2>数据属性约定</h2>
+		<ul>
+			<li><code>data-hero-*</code> — 页面顶部主视觉</li>
+			<li><code>data-animate</code> — 通用滚动淡入</li>
+			<li><code>data-card</code> — 卡片错落出现</li>
+			<li><code>data-line</code> — 分割线 scale 动画</li>
+		</ul>
+
+		<h2>页面过渡</h2>
+		<p>
+			站内链接点击时先将 <code>main</code> 淡出，再跳转，进入新页后淡入。
+			保留 modifier 键打开新标签的默认行为。
+		</p>
+
+		<h2>无障碍</h2>
+		<p>
+			检测 <code>prefers-reduced-motion: reduce</code> 时跳过动画，直接显示内容。
+		</p>
+
+		<p>
+			<a href="/notes">← 返回笔记列表</a>
+		</p>
+	</article>
+</BaseLayout>
+
+<style>
+	.prose h2 {
+		margin-top: 2rem;
+		color: var(--text);
+	}
+
+	.prose ul {
+		color: var(--text-muted);
+		padding-left: 1.25rem;
+	}
+
+	.prose code {
+		font-family: ui-monospace, monospace;
+		color: var(--accent);
+		font-size: 0.9em;
+	}
+</style>

@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+
+const channels = [
+	{ label: 'GitHub', value: '@afwct', href: site.github },
+	{ label: 'Email', value: site.email, href: `mailto:${site.email}` },
+	{ label: '站点', value: site.domain, href: site.url },
+];
+---
+
+<BaseLayout title="联系" description="联系 afwct — GitHub 与邮件。">
+	<PageHero
+		eyebrow="Contact"
+		title="联系我"
+		subtitle="欢迎交流项目合作、技术问题或站点反馈。"
+	/>
+
+	<section class="section container">
+		<div class="contact-grid">
+			{
+				channels.map((c) => (
+					<a href={c.href} class="contact-card" data-card target={c.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+						<span class="contact-card__label">{c.label}</span>
+						<span class="contact-card__value">{c.value}</span>
+					</a>
+				))
+			}
+		</div>
+		<p class="contact-note" data-animate>
+			通常通过 GitHub Issue 或邮件回复。若需部署此站点，请确保仓库已启用 GitHub Pages（来源：GitHub Actions）。
+		</p>
+	</section>
+</BaseLayout>
+
+<style>
+	.contact-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+		gap: 1.25rem;
+		margin-bottom: 2rem;
+	}
+
+	.contact-card {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 2rem;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		text-decoration: none;
+		transition: border-color 0.25s ease, transform 0.25s ease;
+	}
+
+	.contact-card:hover {
+		border-color: var(--accent);
+		transform: translateY(-4px);
+	}
+
+	.contact-card__label {
+		font-size: 0.75rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: var(--text-muted);
+	}
+
+	.contact-card__value {
+		font-family: var(--font-display);
+		font-size: 1.15rem;
+		font-weight: 700;
+		color: var(--text);
+	}
+
+	.contact-note {
+		max-width: 52ch;
+		font-size: 0.9rem;
+	}
+</style>

@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import { site } from '../../data/site';
+---
+
+<BaseLayout title="Astro 静态站点" description="使用 Astro 构建 afwct.art 静态站点。">
+	<PageHero
+		eyebrow="Notes / Astro"
+		title="Astro 静态站点"
+		subtitle="本站的构建方式与 afwct.art 部署要点。"
+	/>
+
+	<article class="section container prose" data-animate>
+		<h2>为什么选 Astro</h2>
+		<p>
+			Astro 默认输出纯静态 HTML，几乎零 JS 运行时，非常适合托管在 GitHub Pages 并通过自定义域名
+			（<a href={site.url}>{site.domain}</a>）对外访问。
+		</p>
+
+		<h2>项目结构</h2>
+		<ul>
+			<li><code>src/pages/</code> — 文件路由，每个 .astro 对应一个页面</li>
+			<li><code>src/layouts/</code> — 共享布局</li>
+			<li><code>src/scripts/gsap-init.ts</code> — 全局动效入口</li>
+		</ul>
+
+		<h2>配置</h2>
+		<pre><code>// astro.config.mjs
+export default defineConfig(&#123;
+  site: 'https://afwct.art',
+  output: 'static',
+&#125;);</code></pre>
+
+		<h2>自定义域名</h2>
+		<p>
+			<code>public/CNAME</code> 内容为 <code>{site.domain}</code>，构建后 GitHub Pages 会据此绑定域名。
+		</p>
+
+		<h2>构建与预览</h2>
+		<pre><code>npm run dev
+npm run build
+npm run preview</code></pre>
+
+		<p>
+			<a href="/notes">← 返回笔记列表</a>
+		</p>
+	</article>
+</BaseLayout>
+
+<style>
+	.prose h2 {
+		margin-top: 2rem;
+		color: var(--text);
+	}
+
+	.prose ul {
+		color: var(--text-muted);
+		padding-left: 1.25rem;
+	}
+
+	.prose li {
+		margin-bottom: 0.5rem;
+	}
+
+	.prose pre {
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		padding: 1.25rem;
+		overflow-x: auto;
+		font-size: 0.85rem;
+	}
+
+	.prose code {
+		font-family: ui-monospace, monospace;
+		color: var(--accent);
+		font-size: 0.9em;
+	}
+</style>
