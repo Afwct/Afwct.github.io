@@ -1,31 +1,34 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageHero from '../../components/PageHero.astro';
-import PageNav from '../../components/PageNav.astro';
-import GitmemoContent from '../../components/GitmemoContent.astro';
-import { noteBreadcrumbs } from '../../data/nav';
-import { parseGitmemo } from '../../lib/parseGitmemo';
-import gitmemoRaw from '../../../gitmemo.rst?raw';
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import PageHero from "../../components/PageHero.astro"
+import PageNav from "../../components/PageNav.astro"
+import GitmemoContent from "../../components/GitmemoContent.astro"
+import { noteBreadcrumbs } from "../../data/nav"
+import { parseGitmemo } from "../../lib/parseGitmemo"
+import gitmemoRaw from "../../../gitmemo.rst?raw"
 
-const crumbs = noteBreadcrumbs('Git 命令速查');
-const gitmemo = parseGitmemo(gitmemoRaw);
+const crumbs = noteBreadcrumbs("Git 命令速查")
+const gitmemo = parseGitmemo(gitmemoRaw)
 ---
 
-<BaseLayout title="Git 命令速查" description="Git 配置、分支、提交与回滚常用命令。">
-	<PageHero
-		eyebrow="Notes / Git"
-		title={gitmemo.title}
-		subtitle="摘自个人 gitmemo.rst，构建时自动同步，便于日常查阅。"
-	/>
-	<PageNav crumbs={crumbs} backHref="/notes" backLabel="返回笔记列表" />
+<BaseLayout
+  title="Git 命令速查"
+  description="Git 配置、分支、提交与回滚常用命令。"
+>
+  <PageHero
+    eyebrow="Notes / Git"
+    title={gitmemo.title}
+    subtitle="摘自个人 gitmemo.rst，构建时自动同步，便于日常查阅。"
+  />
+  <PageNav crumbs={crumbs} backHref="/notes" backLabel="返回笔记列表" />
 
-	<article class="section container prose" data-animate>
-		<GitmemoContent doc={gitmemo} />
-	</article>
+  <article class="section container prose" data-animate>
+    <GitmemoContent doc={gitmemo} />
+  </article>
 </BaseLayout>
 
 <style>
-	.prose {
-		max-width: none;
-	}
+  .prose {
+    max-width: none;
+  }
 </style>

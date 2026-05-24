@@ -1,75 +1,72 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import PageHero from '../../components/PageHero.astro';
-import PageNav from '../../components/PageNav.astro';
-import { notes } from '../../data/site';
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import PageHero from "../../components/PageHero.astro"
+import PageNav from "../../components/PageNav.astro"
+import { notes } from "../../data/site"
 ---
 
 <BaseLayout title="笔记" description="技术笔记与备忘列表。">
-	<PageHero
-		eyebrow="Notes"
-		title="笔记"
-		subtitle="开发过程中的速查、教程摘要与实践记录。"
-	/>
-	<PageNav
-		crumbs={[
-			{ label: '首页', href: '/' },
-			{ label: '笔记' },
-		]}
-		backHref="/"
-		backLabel="返回首页"
-	/>
+  <PageHero
+    eyebrow="Notes"
+    title="笔记"
+    subtitle="开发过程中的速查、教程摘要与实践记录。"
+  />
+  <PageNav
+    crumbs={[{ label: "首页", href: "/" }, { label: "笔记" }]}
+    backHref="/"
+    backLabel="返回首页"
+  />
 
-	<section class="section container">
-		<div class="notes-grid">
-			{
-				notes.map((n) => (
-					<a href={n.href} class="card notes-card" data-card>
-						<span class="notes-card__date">{n.date}</span>
-						<h3>{n.title}</h3>
-						<p>{n.summary}</p>
-						<span class="notes-card__arrow">阅读 →</span>
-					</a>
-				))
-			}
-		</div>
-	</section>
+  <section class="section container">
+    <div class="notes-grid">
+      {
+        notes.map((n) => (
+          <a href={n.href} class="card notes-card" data-card>
+            <span class="notes-card__date">{n.date}</span>
+            <h3>{n.title}</h3>
+            <p>{n.summary}</p>
+            <span class="notes-card__arrow">阅读 →</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
-	.notes-grid {
-		display: grid;
-		gap: 1.25rem;
-		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-	}
+  .notes-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
 
-	.notes-card {
-		display: block;
-		text-decoration: none;
-		color: inherit;
-	}
+  .notes-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
 
-	.notes-card:hover {
-		transform: translateY(-4px);
-	}
+  .notes-card:hover {
+    transform: translateY(-4px);
+  }
 
-	.notes-card__date {
-		font-size: 0.75rem;
-		font-weight: 600;
-		color: var(--accent);
-		letter-spacing: 0.08em;
-	}
+  .notes-card__date {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
 
-	.notes-card h3 {
-		margin: 0.5rem 0;
-		color: var(--text);
-	}
+  .notes-card h3 {
+    margin: 0.5rem 0;
+    color: var(--text);
+  }
 
-	.notes-card__arrow {
-		display: inline-block;
-		margin-top: 0.75rem;
-		font-size: 0.85rem;
-		font-weight: 600;
-		color: var(--accent);
-	}
+  .notes-card__arrow {
+    display: inline-block;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
 </style>

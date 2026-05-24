@@ -1,48 +1,49 @@
 ---
-import { site } from '../data/site';
-const year = new Date().getFullYear();
+import { site } from "../data/site"
+const year = new Date().getFullYear()
 ---
 
 <footer class="footer" data-footer>
-	<div class="container footer__inner">
-		<p class="footer__copy">
-			© {year} <a href="/">{site.name}</a> · <a href={site.url}>{site.domain}</a>
-		</p>
-		<p class="footer__links">
-			<a href={site.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-			<span aria-hidden="true">·</span>
-			<a href="/contact">联系</a>
-		</p>
-	</div>
+  <div class="container footer__inner">
+    <p class="footer__copy">
+      © {year}
+      <a href="/">{site.name}</a> · <a href={site.url}>{site.domain}</a>
+    </p>
+    <p class="footer__links">
+      <a href={site.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+      <span aria-hidden="true">·</span>
+      <a href="/contact">联系</a>
+    </p>
+  </div>
 </footer>
 
 <style>
-	.footer {
-		border-top: 1px solid var(--border);
-		padding: 2rem 0 3rem;
-		margin-top: 4rem;
-	}
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 0 3rem;
+    margin-top: 4rem;
+  }
 
-	.footer__inner {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-		align-items: center;
-		gap: 1rem;
-	}
+  .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
 
-	.footer__copy,
-	.footer__links {
-		margin: 0;
-		font-size: 0.875rem;
-		color: var(--text-muted);
-	}
+  .footer__copy,
+  .footer__links {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
 
-	.footer__links a {
-		color: var(--text-muted);
-	}
+  .footer__links a {
+    color: var(--text-muted);
+  }
 
-	.footer__links a:hover {
-		color: var(--accent);
-	}
+  .footer__links a:hover {
+    color: var(--accent);
+  }
 </style>

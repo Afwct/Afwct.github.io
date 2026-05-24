@@ -1,4 +1,4 @@
-# afwct
+# Afwct
 
 个人主页，基于 [Astro](https://astro.build) 构建，使用 [GSAP](https://gsap.com) 实现页面与滚动动效，部署于 [afwct.top](https://afwct.top)。
 

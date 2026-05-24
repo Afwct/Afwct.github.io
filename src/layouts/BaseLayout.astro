@@ -1,63 +1,60 @@
 ---
-import '../styles/global.css';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { site } from '../data/site';
+import "../styles/global.css"
+import Header from "../components/Header.astro"
+import Footer from "../components/Footer.astro"
+import { site } from "../data/site"
 
 interface Props {
-	title?: string;
-	description?: string;
+  title?: string
+  description?: string
 }
 
-const {
-	title = site.title,
-	description = site.description,
-} = Astro.props;
+const { title = site.title, description = site.description } = Astro.props
 
-const pageTitle = title === site.title ? title : `${title} · ${site.name}`;
-const canonicalUrl = new URL(Astro.url.pathname, site.url).href;
+const pageTitle = title === site.title ? title : `${title} · ${site.name}`
+const canonicalUrl = new URL(Astro.url.pathname, site.url).href
 ---
 
 <!doctype html>
 <html lang="zh-CN">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/jpeg" href="/favicon.jpg" />
-		<link rel="apple-touch-icon" href="/favicon.jpg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content={description} />
-		<meta property="og:title" content={pageTitle} />
-		<meta property="og:description" content={description} />
-		<meta property="og:url" content={canonicalUrl} />
-		<link rel="canonical" href={canonicalUrl} />
-		<title>{pageTitle}</title>
-	</head>
-	<body>
-		<div class="site-bg" aria-hidden="true"></div>
-		<Header />
-		<main class="page-main">
-			<slot />
-		</main>
-		<Footer />
-		<script src="../scripts/gsap-init.ts"></script>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
+    <link rel="apple-touch-icon" href="/favicon.jpg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <link rel="canonical" href={canonicalUrl} />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <div class="site-bg" aria-hidden="true"></div>
+    <Header />
+    <main class="page-main">
+      <slot />
+    </main>
+    <Footer />
+    <script src="../scripts/gsap-init.ts"></script>
+  </body>
 </html>
 
 <style>
-	.site-bg {
-		position: fixed;
-		inset: 0;
-		pointer-events: none;
-		z-index: -1;
-		background:
-			linear-gradient(135deg, transparent 40%, rgba(110, 231, 183, 0.03) 100%),
-			repeating-linear-gradient(
-				90deg,
-				transparent,
-				transparent 100px,
-				rgba(255, 255, 255, 0.015) 100px,
-				rgba(255, 255, 255, 0.015) 101px
-			);
-	}
+  .site-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background:
+      linear-gradient(135deg, transparent 40%, rgba(110, 231, 183, 0.03) 100%),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 100px,
+        rgba(255, 255, 255, 0.015) 100px,
+        rgba(255, 255, 255, 0.015) 101px
+      );
+  }
 </style>

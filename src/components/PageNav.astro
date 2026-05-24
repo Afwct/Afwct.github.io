@@ -1,113 +1,108 @@
 ---
-import type { Crumb } from '../data/nav';
+import type { Crumb } from "../data/nav"
 
 interface Props {
-	crumbs?: Crumb[];
-	backHref?: string;
-	backLabel?: string;
+  crumbs?: Crumb[]
+  backHref?: string
+  backLabel?: string
 }
 
-const {
-	crumbs = [],
-	backHref,
-	backLabel = '返回上一级',
-} = Astro.props;
+const { crumbs = [], backHref, backLabel = "返回上一级" } = Astro.props
 
-const parentHref =
-	backHref ?? [...crumbs].reverse().find((c) => c.href)?.href;
+const parentHref = backHref ?? [...crumbs].reverse().find((c) => c.href)?.href
 ---
 
 {
-	(crumbs.length > 0 || parentHref) && (
-		<nav class="page-nav container" aria-label="页面导航">
-			{crumbs.length > 0 && (
-				<ol class="breadcrumbs">
-					{crumbs.map((crumb, i) => {
-						const isLast = i === crumbs.length - 1;
-						return (
-							<li class="breadcrumbs__item">
-								{!isLast && crumb.href ? (
-									<a href={crumb.href}>{crumb.label}</a>
-								) : (
-									<span aria-current={isLast ? 'page' : undefined}>
-										{crumb.label}
-									</span>
-								)}
-							</li>
-						);
-					})}
-				</ol>
-			)}
-			{parentHref && (
-				<a href={parentHref} class="page-nav__back">
-					<span aria-hidden="true">←</span> {backLabel}
-				</a>
-			)}
-		</nav>
-	)
+  (crumbs.length > 0 || parentHref) && (
+    <nav class="page-nav container" aria-label="页面导航">
+      {crumbs.length > 0 && (
+        <ol class="breadcrumbs">
+          {crumbs.map((crumb, i) => {
+            const isLast = i === crumbs.length - 1
+            return (
+              <li class="breadcrumbs__item">
+                {!isLast && crumb.href ? (
+                  <a href={crumb.href}>{crumb.label}</a>
+                ) : (
+                  <span aria-current={isLast ? "page" : undefined}>
+                    {crumb.label}
+                  </span>
+                )}
+              </li>
+            )
+          })}
+        </ol>
+      )}
+      {parentHref && (
+        <a href={parentHref} class="page-nav__back">
+          <span aria-hidden="true">←</span> {backLabel}
+        </a>
+      )}
+    </nav>
+  )
 }
 
 <style>
-	.page-nav {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		gap: 1rem 2rem;
-		padding: 0 0 1.25rem;
-		margin-top: -0.5rem;
-	}
+  .page-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding: 0 0 1.25rem;
+    margin-top: -0.5rem;
+  }
 
-	.breadcrumbs {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.35rem;
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		font-size: 0.85rem;
-	}
+  .breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.85rem;
+  }
 
-	.breadcrumbs__item {
-		display: flex;
-		align-items: center;
-		gap: 0.35rem;
-		color: var(--text-muted);
-	}
+  .breadcrumbs__item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-muted);
+  }
 
-	.breadcrumbs__item:not(:last-child)::after {
-		content: '/';
-		color: var(--border);
-		margin-left: 0.35rem;
-	}
+  .breadcrumbs__item:not(:last-child)::after {
+    content: "/";
+    color: var(--border);
+    margin-left: 0.35rem;
+  }
 
-	.breadcrumbs a {
-		color: var(--text-muted);
-		text-decoration: none;
-	}
+  .breadcrumbs a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
 
-	.breadcrumbs a:hover {
-		color: var(--accent);
-	}
+  .breadcrumbs a:hover {
+    color: var(--accent);
+  }
 
-	.breadcrumbs__item span[aria-current='page'] {
-		color: var(--text);
-		font-weight: 500;
-	}
+  .breadcrumbs__item span[aria-current="page"] {
+    color: var(--text);
+    font-weight: 500;
+  }
 
-	.page-nav__back {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.35rem;
-		font-size: 0.85rem;
-		font-weight: 600;
-		color: var(--accent);
-		text-decoration: none;
-		white-space: nowrap;
-	}
+  .page-nav__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    white-space: nowrap;
+  }
 
-	.page-nav__back:hover {
-		color: var(--accent-warm);
-	}
+  .page-nav__back:hover {
+    color: var(--accent-warm);
+  }
 </style>

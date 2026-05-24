@@ -1,68 +1,70 @@
 ---
-import type { GitmemoDoc } from '../lib/parseGitmemo';
+import type { GitmemoDoc } from "../lib/parseGitmemo"
 
 interface Props {
-	doc: GitmemoDoc;
+  doc: GitmemoDoc
 }
 
-const { doc } = Astro.props;
+const { doc } = Astro.props
 ---
 
 <div class="gitmemo">
-	<p class="gitmemo__source">
-		以下内容在构建时从仓库根目录 <code>gitmemo.rst</code> 同步渲染。
-	</p>
-	{
-		doc.sections.map((section) => (
-			<section class="gitmemo__section" id={section.id}>
-				<h2>{section.title}</h2>
-				<pre><code>{section.body}</code></pre>
-			</section>
-		))
-	}
+  <p class="gitmemo__source">
+    以下内容在构建时从仓库根目录 <code>gitmemo.rst</code> 同步渲染。
+  </p>
+  {
+    doc.sections.map((section) => (
+      <section class="gitmemo__section" id={section.id}>
+        <h2>{section.title}</h2>
+        <pre>
+          <code>{section.body}</code>
+        </pre>
+      </section>
+    ))
+  }
 </div>
 
 <style>
-	.gitmemo__source {
-		font-size: 0.9rem;
-		margin-bottom: 2rem;
-		padding: 0.75rem 1rem;
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-	}
+  .gitmemo__source {
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
 
-	.gitmemo__source code {
-		font-family: ui-monospace, 'Cascadia Code', monospace;
-		color: var(--accent);
-		font-size: 0.85em;
-	}
+  .gitmemo__source code {
+    font-family: ui-monospace, "Cascadia Code", monospace;
+    color: var(--accent);
+    font-size: 0.85em;
+  }
 
-	.gitmemo__section {
-		margin-bottom: 2.5rem;
-	}
+  .gitmemo__section {
+    margin-bottom: 2.5rem;
+  }
 
-	.gitmemo__section h2 {
-		margin-top: 0;
-		margin-bottom: 1rem;
-		color: var(--text);
-		font-size: 1.35rem;
-	}
+  .gitmemo__section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--text);
+    font-size: 1.35rem;
+  }
 
-	.gitmemo__section pre {
-		margin: 0;
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		padding: 1.25rem;
-		overflow-x: auto;
-		font-size: 0.85rem;
-		line-height: 1.65;
-	}
+  .gitmemo__section pre {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.65;
+  }
 
-	.gitmemo__section code {
-		font-family: ui-monospace, 'Cascadia Code', monospace;
-		color: var(--accent);
-		white-space: pre;
-	}
+  .gitmemo__section code {
+    font-family: ui-monospace, "Cascadia Code", monospace;
+    color: var(--accent);
+    white-space: pre;
+  }
 </style>

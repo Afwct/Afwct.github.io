@@ -1,8 +1,8 @@
 export const site = {
-  name: "afwct",
+  name: "Afwct",
   domain: "afwct.top",
-  title: "afwct — 个人主页",
-  description: "开发者个人站点，记录项目、笔记与日常探索。",
+  title: "Afwct ❤ Miku",
+  description: "心脏献给世界第一公主殿下",
   url: "https://afwct.top",
   github: "https://github.com/afwct",
   email: "Email就算了",
