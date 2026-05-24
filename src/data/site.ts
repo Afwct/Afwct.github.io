@@ -5,7 +5,7 @@ export const site = {
   description: "开发者个人站点，记录项目、笔记与日常探索。",
   url: "https://afwct.top",
   github: "https://github.com/afwct",
-  email: "kogawananari@gmail.com",
+  email: "Email就算了",
 } as const
 
 export const nav = [
@@ -18,10 +18,22 @@ export const nav = [
 
 export const projects = [
   {
-    title: "afwct",
+    title: "Afwct",
     desc: "基于 Astro 与 GSAP 的个人站点。",
     tags: ["Astro", "GSAP", site.domain],
     link: "https://github.com/afwct/Afwct.github.io",
+  },
+  {
+    title: "实验性前端",
+    desc: "交互原型、动效练习与小工具集合。",
+    tags: ["Component"],
+    link: "https://github.com/afwct",
+  },
+  {
+    title: "Minecraft MOD",
+    desc: "算是学习开发MC模组",
+    tags: ["Minecraft", "Forge"],
+    link: "https://github.com/Afwct/Alchemy",
   },
   {
     title: "Git 备忘",
@@ -29,24 +41,12 @@ export const projects = [
     tags: ["Git", "Docs"],
     link: "/notes",
   },
-  {
-    title: "实验性前端",
-    desc: "交互原型、动效练习与小工具集合。",
-    tags: ["HTML", "CSS", "JavaScript"],
-    link: "https://github.com/afwct",
-  },
-  {
-    title: "开源贡献",
-    desc: "参与社区项目、Issue 与 PR 的零散记录。",
-    tags: ["Open Source"],
-    link: "https://github.com/afwct?tab=repositories",
-  },
 ] as const
 
 export const notes = [
   {
     title: "Git 命令速查",
-    summary: "配置、分支、提交、回滚等常用操作整理。",
+    summary: "同步展示 gitmemo.rst：配置、分支、提交、回滚等常用命令。",
     date: "2025",
     href: "/notes/git",
   },

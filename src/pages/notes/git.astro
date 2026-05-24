@@ -2,64 +2,30 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
 import PageNav from '../../components/PageNav.astro';
+import GitmemoContent from '../../components/GitmemoContent.astro';
 import { noteBreadcrumbs } from '../../data/nav';
+import { parseGitmemo } from '../../lib/parseGitmemo';
+import gitmemoRaw from '../../../gitmemo.rst?raw';
 
 const crumbs = noteBreadcrumbs('Git 命令速查');
+const gitmemo = parseGitmemo(gitmemoRaw);
 ---
 
 <BaseLayout title="Git 命令速查" description="Git 配置、分支、提交与回滚常用命令。">
-	<PageHero eyebrow="Notes / Git" title="Git 命令速查" subtitle="摘自个人 gitmemo，便于日常查阅。" />
+	<PageHero
+		eyebrow="Notes / Git"
+		title={gitmemo.title}
+		subtitle="摘自个人 gitmemo.rst，构建时自动同步，便于日常查阅。"
+	/>
 	<PageNav crumbs={crumbs} backHref="/notes" backLabel="返回笔记列表" />
 
 	<article class="section container prose" data-animate>
-		<h2>配置</h2>
-		<pre><code>git config --global user.name "你的名字"
-git config --global user.email "your@email.com"
-git config --global --list</code></pre>
-
-		<h2>克隆与拉取</h2>
-		<pre><code>git clone &lt;repo-url&gt;
-git pull</code></pre>
-
-		<h2>分支</h2>
-		<pre><code>git branch
-git checkout -b feature/name
-git branch -d feature/name
-git push origin -d remote-branch</code></pre>
-
-		<h2>提交</h2>
-		<pre><code>git add .
-git commit -m "message"
-git push origin main
-git stash save "wip"
-git stash pop</code></pre>
-
-		<h2>回滚</h2>
-		<pre><code>git reflog
-git reset --hard &lt;commit&gt;
-git rebase -i HEAD~3</code></pre>
-
+		<GitmemoContent doc={gitmemo} />
 	</article>
 </BaseLayout>
 
 <style>
-	.prose h2 {
-		margin-top: 2rem;
-		color: var(--text);
-	}
-
-	.prose pre {
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		padding: 1.25rem;
-		overflow-x: auto;
-		font-size: 0.85rem;
-		line-height: 1.6;
-	}
-
-	.prose code {
-		font-family: ui-monospace, 'Cascadia Code', monospace;
-		color: var(--accent);
+	.prose {
+		max-width: none;
 	}
 </style>

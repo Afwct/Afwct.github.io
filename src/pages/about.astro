@@ -4,30 +4,23 @@ import PageHero from "../components/PageHero.astro"
 import { site } from "../data/site"
 
 const skills = [
-  "HTML / CSS / JavaScript",
-  "Astro · 静态站点",
-  "GSAP · 动效",
-  "Git · GitHub",
-  "前端工程化",
+  "C/C++ / C# / JAVA / Python / Android/IOS",
+  "H5 / JavaScript / Typescript / Uni",
+  "Astro / TDesign / AG Grid / Reka-ui",
+  "GSAP · 动效 / Unity · 2D",
 ]
 ---
 
 <BaseLayout title="关于" description="关于 afwct — 技能、兴趣与站点说明。">
-  <PageHero
-    eyebrow="About"
-    title="关于我"
-    subtitle="一名热爱构建与记录的前端开发者，习惯把想法落成可访问的页面。"
-  />
+  <PageHero eyebrow="About" title="关于我" subtitle="懒。" />
 
   <section class="section container">
     <div class="about-grid">
       <div class="about-block" data-animate>
         <h2>简介</h2>
         <p>
-          我是 <strong>{site.name}</strong>，主要关注 Web
-          前端、静态站点与轻量动效。
-          这个站点作为个人主页，用来展示项目、整理笔记，并练习 Astro 与 GSAP
-          的组合。
+          我是 <strong>{site.name}</strong>，懒狗一只。
+          这个站点作为个人主页，用来展示项目、整理笔记，与练习。
         </p>
         <p>
           代码托管在 <a
@@ -50,10 +43,17 @@ const skills = [
     <p class="section-label" data-animate>时间线</p>
     <ul class="timeline" data-timeline>
       <li class="timeline__item" data-timeline-item>
+        <span class="timeline__year">—</span>
+        <div>
+          <h3>持续探索</h3>
+          <p>开源协作与工具链实践。</p>
+        </div>
+      </li>
+      <li class="timeline__item" data-timeline-item>
         <span class="timeline__year">2026</span>
         <div>
-          <h3>个人站点 v1</h3>
-          <p>使用 Astro + GSAP 重建 afwct.top，多页面结构与滚动动效。</p>
+          <h3>个人站点 V1</h3>
+          <p>使用 Astro + GSAP 构建 afwct.top，多页面结构与滚动动效。</p>
         </div>
       </li>
       <li class="timeline__item" data-timeline-item>
@@ -61,13 +61,6 @@ const skills = [
         <div>
           <h3>文档与备忘</h3>
           <p>整理 Git 命令备忘（gitmemo），方便日常查阅与分享。</p>
-        </div>
-      </li>
-      <li class="timeline__item" data-timeline-item>
-        <span class="timeline__year">—</span>
-        <div>
-          <h3>持续探索</h3>
-          <p>实验性前端、开源协作与工具链实践。</p>
         </div>
       </li>
     </ul>
