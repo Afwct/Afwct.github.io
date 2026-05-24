@@ -94,3 +94,16 @@ git命令
     git rebase -i 114dec5ed1419a810e
     # 强制推送
     git push origin 远程名 --force
+
+    
+清空提交历史::
+    # 创建孤立分支（无历史）
+    git checkout --orphan new-history
+    # 暂存所有当前文件
+    git add -A
+    # 首次提交
+    git commit -m ":tada:"
+    # 强制重命名为
+    git branch -m 需要重置的分支名
+    # 强制推送到远程
+    git push --force-with-lease origin main

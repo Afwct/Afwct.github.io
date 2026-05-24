@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
+import PageNav from '../../components/PageNav.astro';
 import { notes } from '../../data/site';
 ---
 
@@ -9,6 +10,14 @@ import { notes } from '../../data/site';
 		eyebrow="Notes"
 		title="笔记"
 		subtitle="开发过程中的速查、教程摘要与实践记录。"
+	/>
+	<PageNav
+		crumbs={[
+			{ label: '首页', href: '/' },
+			{ label: '笔记' },
+		]}
+		backHref="/"
+		backLabel="返回首页"
 	/>
 
 	<section class="section container">

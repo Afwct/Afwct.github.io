@@ -179,11 +179,6 @@ p strong,
 	margin-bottom: 0.35rem;
 }
 
-[data-animate] {
-	opacity: 0;
-	transform: translateY(24px);
-}
-
 .page-main {
 	padding-top: var(--header-h);
 	min-height: calc(100vh - var(--header-h));

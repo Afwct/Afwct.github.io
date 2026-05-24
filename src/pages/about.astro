@@ -1,145 +1,148 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHero from '../components/PageHero.astro';
-import { site } from '../data/site';
+import BaseLayout from "../layouts/BaseLayout.astro"
+import PageHero from "../components/PageHero.astro"
+import { site } from "../data/site"
 
 const skills = [
-	'HTML / CSS / JavaScript',
-	'Astro · 静态站点',
-	'GSAP · 动效',
-	'Git · GitHub',
-	'前端工程化',
-];
+  "HTML / CSS / JavaScript",
+  "Astro · 静态站点",
+  "GSAP · 动效",
+  "Git · GitHub",
+  "前端工程化",
+]
 ---
 
 <BaseLayout title="关于" description="关于 afwct — 技能、兴趣与站点说明。">
-	<PageHero
-		eyebrow="About"
-		title="关于我"
-		subtitle="一名热爱构建与记录的前端开发者，习惯把想法落成可访问的页面。"
-	/>
+  <PageHero
+    eyebrow="About"
+    title="关于我"
+    subtitle="一名热爱构建与记录的前端开发者，习惯把想法落成可访问的页面。"
+  />
 
-	<section class="section container">
-		<div class="about-grid">
-			<div class="about-block" data-animate>
-				<h2>简介</h2>
-				<p>
-					我是 <strong>{site.name}</strong>，主要关注 Web 前端、静态站点与轻量动效。
-					这个站点作为个人主页，用来展示项目、整理笔记，并练习 Astro 与 GSAP 的组合。
-				</p>
-				<p>
-					代码托管在 <a href={site.github} target="_blank" rel="noopener noreferrer">GitHub</a>，
-					通过 GitHub Pages 发布到 <a href={site.url}>{site.domain}</a>。
-				</p>
-			</div>
-			<div class="about-block" data-animate>
-				<h2>技能栈</h2>
-				<ul class="skill-list">
-					{skills.map((s) => (
-						<li data-animate>{s}</li>
-					))}
-				</ul>
-			</div>
-		</div>
-	</section>
+  <section class="section container">
+    <div class="about-grid">
+      <div class="about-block" data-animate>
+        <h2>简介</h2>
+        <p>
+          我是 <strong>{site.name}</strong>，主要关注 Web
+          前端、静态站点与轻量动效。
+          这个站点作为个人主页，用来展示项目、整理笔记，并练习 Astro 与 GSAP
+          的组合。
+        </p>
+        <p>
+          代码托管在 <a
+            href={site.github}
+            target="_blank"
+            rel="noopener noreferrer">GitHub</a
+          >， 通过 GitHub Pages 发布到 <a href={site.url}>{site.domain}</a>。
+        </p>
+      </div>
+      <div class="about-block" data-animate>
+        <h2>技能栈</h2>
+        <ul class="skill-list">
+          {skills.map((s) => <li>{s}</li>)}
+        </ul>
+      </div>
+    </div>
+  </section>
 
-	<section class="section container">
-		<p class="section-label" data-animate>时间线</p>
-		<ul class="timeline">
-			<li class="timeline__item" data-animate>
-				<span class="timeline__year">2026</span>
-				<div>
-					<h3>个人站点 v1</h3>
-					<p>使用 Astro + GSAP 重建 afwct.art，多页面结构与滚动动效。</p>
-				</div>
-			</li>
-			<li class="timeline__item" data-animate>
-				<span class="timeline__year">2025</span>
-				<div>
-					<h3>文档与备忘</h3>
-					<p>整理 Git 命令备忘（gitmemo），方便日常查阅与分享。</p>
-				</div>
-			</li>
-			<li class="timeline__item" data-animate>
-				<span class="timeline__year">—</span>
-				<div>
-					<h3>持续探索</h3>
-					<p>实验性前端、开源协作与工具链实践。</p>
-				</div>
-			</li>
-		</ul>
-	</section>
+  <section class="section container">
+    <p class="section-label" data-animate>时间线</p>
+    <ul class="timeline" data-timeline>
+      <li class="timeline__item" data-timeline-item>
+        <span class="timeline__year">2026</span>
+        <div>
+          <h3>个人站点 v1</h3>
+          <p>使用 Astro + GSAP 重建 afwct.top，多页面结构与滚动动效。</p>
+        </div>
+      </li>
+      <li class="timeline__item" data-timeline-item>
+        <span class="timeline__year">2025</span>
+        <div>
+          <h3>文档与备忘</h3>
+          <p>整理 Git 命令备忘（gitmemo），方便日常查阅与分享。</p>
+        </div>
+      </li>
+      <li class="timeline__item" data-timeline-item>
+        <span class="timeline__year">—</span>
+        <div>
+          <h3>持续探索</h3>
+          <p>实验性前端、开源协作与工具链实践。</p>
+        </div>
+      </li>
+    </ul>
+  </section>
 </BaseLayout>
 
 <style>
-	.about-grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 3rem;
-	}
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
 
-	.about-block h2 {
-		margin-bottom: 1rem;
-	}
+  .about-block h2 {
+    margin-bottom: 1rem;
+  }
 
-	.skill-list {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-	}
+  .skill-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
 
-	.skill-list li {
-		padding: 0.65rem 1rem;
-		margin-bottom: 0.5rem;
-		background: var(--surface);
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		color: var(--text);
-		font-weight: 500;
-	}
+  .skill-list li {
+    padding: 0.65rem 1rem;
+    margin-bottom: 0.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-weight: 500;
+  }
 
-	.timeline {
-		list-style: none;
-		margin: 1.5rem 0 0;
-		padding: 0;
-		border-left: 2px solid var(--border);
-		margin-left: 0.5rem;
-	}
+  .timeline {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    border-left: 2px solid var(--border);
+    margin-left: 0.5rem;
+  }
 
-	.timeline__item {
-		display: grid;
-		grid-template-columns: 5rem 1fr;
-		gap: 1.5rem;
-		padding: 0 0 2.5rem 1.5rem;
-		position: relative;
-	}
+  .timeline__item {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 1.5rem;
+    padding: 0 0 2.5rem 1.5rem;
+    position: relative;
+  }
 
-	.timeline__item::before {
-		content: '';
-		position: absolute;
-		left: -1.35rem;
-		top: 0.35rem;
-		width: 10px;
-		height: 10px;
-		background: var(--accent);
-		border-radius: 50%;
-		box-shadow: 0 0 12px var(--glow);
-	}
+  .timeline__item::before {
+    content: "";
+    position: absolute;
+    left: -1.35rem;
+    top: 0.35rem;
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--glow);
+  }
 
-	.timeline__year {
-		font-family: var(--font-display);
-		font-weight: 700;
-		color: var(--accent);
-	}
+  .timeline__year {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--accent);
+  }
 
-	.timeline__item h3 {
-		color: var(--text);
-		margin-bottom: 0.35rem;
-	}
+  .timeline__item h3 {
+    color: var(--text);
+    margin-bottom: 0.35rem;
+  }
 
-	@media (max-width: 720px) {
-		.about-grid {
-			grid-template-columns: 1fr;
-		}
-	}
+  @media (max-width: 720px) {
+    .about-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>

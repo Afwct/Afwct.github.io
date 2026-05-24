@@ -7,6 +7,38 @@ function prefersReducedMotion(): boolean {
 	return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+function revealOnScroll(
+	selector: string,
+	options?: { stagger?: number; start?: string },
+) {
+	const { stagger = 0, start = 'top 88%' } = options ?? {};
+	const elements = gsap.utils.toArray<HTMLElement>(selector);
+	if (!elements.length) return;
+
+	elements.forEach((el) => {
+		const targets =
+			stagger > 0
+				? gsap.utils.toArray<HTMLElement>(el.querySelectorAll('[data-timeline-item]'))
+				: [el];
+		if (!targets.length) return;
+
+		gsap.set(targets, { opacity: 0, y: 24 });
+
+		gsap.to(targets, {
+			opacity: 1,
+			y: 0,
+			duration: 0.8,
+			stagger,
+			ease: 'power2.out',
+			scrollTrigger: {
+				trigger: el,
+				start,
+				once: true,
+			},
+		});
+	});
+}
+
 function initHeader() {
 	const header = document.querySelector<HTMLElement>('[data-header]');
 	if (!header) return;
@@ -66,35 +98,27 @@ function initHomeExtras() {
 		scrollTrigger: {
 			trigger: '[data-stats]',
 			start: 'top 85%',
+			once: true,
 		},
 	});
 }
 
 function initScrollAnimations() {
-	gsap.utils.toArray<HTMLElement>('[data-animate]').forEach((el) => {
-		gsap.from(el, {
-			opacity: 0,
-			y: 24,
-			duration: 0.8,
-			ease: 'power2.out',
-			scrollTrigger: {
-				trigger: el,
-				start: 'top 88%',
-				toggleActions: 'play none none reverse',
-			},
-		});
-	});
+	revealOnScroll('[data-animate]');
+	revealOnScroll('[data-timeline]', { stagger: 0.12, start: 'top 85%' });
 
 	gsap.utils.toArray<HTMLElement>('[data-card]').forEach((card, i) => {
-		gsap.from(card, {
-			opacity: 0,
-			y: 40,
+		gsap.set(card, { opacity: 0, y: 40 });
+		gsap.to(card, {
+			opacity: 1,
+			y: 0,
 			duration: 0.7,
 			delay: (i % 3) * 0.08,
 			ease: 'power2.out',
 			scrollTrigger: {
 				trigger: card,
 				start: 'top 90%',
+				once: true,
 			},
 		});
 	});
@@ -108,6 +132,7 @@ function initScrollAnimations() {
 			scrollTrigger: {
 				trigger: line,
 				start: 'top 85%',
+				once: true,
 			},
 		});
 	});
@@ -142,8 +167,9 @@ function initPageTransition() {
 
 function init() {
 	if (prefersReducedMotion()) {
-		gsap.set('[data-animate], [data-card], [data-hero-title], [data-hero-subtitle]', {
+		gsap.set('[data-animate], [data-card], [data-timeline-item], [data-hero-title], [data-hero-subtitle]', {
 			opacity: 1,
+			y: 0,
 			clearProps: 'all',
 		});
 		return;
@@ -157,6 +183,8 @@ function init() {
 	if (document.querySelector('[data-home]')) {
 		initHomeExtras();
 	}
+
+	ScrollTrigger.refresh();
 }
 
 if (document.readyState === 'loading') {

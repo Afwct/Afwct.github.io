@@ -1,6 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
+import PageNav from '../../components/PageNav.astro';
+import { noteBreadcrumbs } from '../../data/nav';
+
+const crumbs = noteBreadcrumbs('动效设计备忘');
 ---
 
 <BaseLayout title="动效设计备忘" description="GSAP ScrollTrigger 与页面过渡实践。">
@@ -9,6 +13,7 @@ import PageHero from '../../components/PageHero.astro';
 		title="动效设计备忘"
 		subtitle="本站 GSAP 动效的实现思路与可访问性注意点。"
 	/>
+	<PageNav crumbs={crumbs} backHref="/notes" backLabel="返回笔记列表" />
 
 	<article class="section container prose" data-animate>
 		<h2>使用的插件</h2>
@@ -36,9 +41,6 @@ import PageHero from '../../components/PageHero.astro';
 			检测 <code>prefers-reduced-motion: reduce</code> 时跳过动画，直接显示内容。
 		</p>
 
-		<p>
-			<a href="/notes">← 返回笔记列表</a>
-		</p>
 	</article>
 </BaseLayout>
 

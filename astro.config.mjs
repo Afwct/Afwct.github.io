@@ -1,8 +1,8 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig } from "astro/config"
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://afwct.art',
-	output: 'static',
-});
+  site: "https://afwct.top",
+  output: "static",
+})

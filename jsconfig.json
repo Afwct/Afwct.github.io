@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "checkJs": true,
+    "strictNullChecks": true
+  },
+  "include": ["astro.config.mjs"],
+  "exclude": ["dist", "node_modules"]
+}

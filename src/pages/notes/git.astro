@@ -1,10 +1,15 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHero from '../../components/PageHero.astro';
+import PageNav from '../../components/PageNav.astro';
+import { noteBreadcrumbs } from '../../data/nav';
+
+const crumbs = noteBreadcrumbs('Git 命令速查');
 ---
 
 <BaseLayout title="Git 命令速查" description="Git 配置、分支、提交与回滚常用命令。">
 	<PageHero eyebrow="Notes / Git" title="Git 命令速查" subtitle="摘自个人 gitmemo，便于日常查阅。" />
+	<PageNav crumbs={crumbs} backHref="/notes" backLabel="返回笔记列表" />
 
 	<article class="section container prose" data-animate>
 		<h2>配置</h2>
@@ -34,9 +39,6 @@ git stash pop</code></pre>
 git reset --hard &lt;commit&gt;
 git rebase -i HEAD~3</code></pre>
 
-		<p>
-			<a href="/notes">← 返回笔记列表</a>
-		</p>
 	</article>
 </BaseLayout>
 
