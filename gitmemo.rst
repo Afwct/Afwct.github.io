@@ -11,11 +11,11 @@ git命令
     # 查看仓库配置
     git config --local --list
     # 配置全局用户名邮箱
-    git config --global user.name "☘"
-    git config --global user.email "kogawananari@gmail.com"
+    git config --global user.name "Afwct"
+    git config --global user.email Afwct@gmail.com"
     # 配置仓库用户名邮箱
-    git config --local user.name "☘☘"
-    git config --local user.email "☘☘☘☘☘☘☘☘☘☘☘☘☘☘"
+    git config --local user.name "Afwct"
+    git config --local user.email "Afwct@gmail.com"
     # 全局代理
     git config --global http.proxy http://127.0.0.1:7890
     git config --global https.proxy http://127.0.0.1:7890
@@ -32,7 +32,7 @@ git命令
 拉取::
 
     # 克隆
-    git clone http://10.10.10.101/☘☘☘☘/☘☘☘☘.git
+    git clone http://10.10.10.101/Afwct/项目名称.git
 
 
 切分支::
@@ -97,6 +97,7 @@ git命令
 
 
 清空提交历史::
+
     # 创建孤立分支（无历史）
     git checkout --orphan new-history
     # 暂存所有当前文件
@@ -110,6 +111,7 @@ git命令
 
 
 顶部n条合并一条::
+
     # 可选：先暂存当前未提交的改动
     git stash push -u -m "wip"
     # 把最近 n 条 commit 合成暂存区
