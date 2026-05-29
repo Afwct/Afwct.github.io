@@ -95,7 +95,7 @@ git命令
     # 强制推送
     git push origin 远程名 --force
 
-    
+
 清空提交历史::
     # 创建孤立分支（无历史）
     git checkout --orphan new-history
@@ -107,3 +107,25 @@ git命令
     git branch -m 需要重置的分支名
     # 强制推送到远程
     git push --force-with-lease origin main
+
+
+顶部n条合并一条::
+1、可选：先暂存当前未提交的改动
+git stash push -u -m "wip"
+2、把最近 n 条 commit 合成暂存区
+git reset --soft HEAD~n
+此时：n 次提交的改动都在暂存区。
+3、重新提交为 1 条
+git commit -m ":boom: 用户名"
+4、推送到远程（改写历史）
+git push --force-with-lease origin mistress
+5、若第 1 步 stash 了，再恢复
+git stash pop
+
+最近 n 次提交想压成 1 条，代码还要 git reset --soft HEAD~n次 → 再 git commit
+不要本地改动了，和远程一模一样 git reset --hard origin/mistress（先 git fetch）
+只丢未提交修改，保留本地 commit git restore .，不要用上面两个
+注意
+HEAD~n次 必须是当前分支最顶上连续 n 条；中间夹着 merge、且不在最上面时，不适合用这条压“中间一坨”。
+--hard origin/xxx 前先 git fetch origin，否则对齐的是旧的远程记录。
+两者都可能需要 git push --force-with-lease（若这些 commit 已经推过远程）。
