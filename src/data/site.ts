@@ -62,4 +62,10 @@ export const notes = [
     date: "2026",
     href: "/notes/motion",
   },
+  {
+    title: "拼单分摊计算",
+    summary: "输入商品单价、优惠与固定费用，按规则自动均摊到各人应付金额。",
+    date: "2026",
+    href: "/notes/split",
+  },
 ] as const

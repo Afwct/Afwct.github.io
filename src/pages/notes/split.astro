@@ -1,0 +1,378 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import PageHero from "../../components/PageHero.astro"
+import PageNav from "../../components/PageNav.astro"
+import { noteBreadcrumbs } from "../../data/nav"
+
+const crumbs = noteBreadcrumbs("拼单分摊计算")
+---
+
+<BaseLayout
+  title="拼单分摊计算"
+  description="外卖拼单优惠与固定费用分摊计算器。"
+>
+  <PageHero
+    eyebrow="Notes / Split"
+    title="拼单分摊计算"
+    subtitle="输入商品、优惠与固定费用，按规则自动均摊到各人。"
+  />
+  <PageNav crumbs={crumbs} backHref="/notes" backLabel="返回笔记列表" />
+
+  <article class="section container split-page" data-animate>
+    <section class="split-rules card">
+      <h2>分摊规则</h2>
+      <ol>
+        <li>优惠先抵扣配送费与打包费（固定费用）</li>
+        <li>优惠大于固定费用时，固定费用全免，剩余优惠按商品原价占比分摊</li>
+        <li>优惠不大于固定费用时，优惠全用于抵扣固定费用，剩余固定费用按人数均摊</li>
+        <li>结果保留两位小数，四舍五入偏差调整到最后一人</li>
+      </ol>
+    </section>
+
+    <form id="split-form" class="split-form card">
+      <h2>订单信息</h2>
+
+      <label class="split-toggle">
+        <input id="include-fixed-fees" type="checkbox" checked />
+        <span class="split-toggle__track" aria-hidden="true"></span>
+        <span class="split-toggle__label">平摊配送与打包费</span>
+      </label>
+
+      <div class="split-fees">
+        <div id="fixed-fees-fields" class="split-fees__fixed">
+          <label>
+            配送费
+            <input id="delivery-fee" type="number" class="split-input" min="0" step="0.01" value="5" />
+          </label>
+          <label>
+            打包费
+            <input id="packaging-fee" type="number" class="split-input" min="0" step="0.01" value="2" />
+          </label>
+        </div>
+        <label>
+          总优惠
+          <input id="discount" type="number" class="split-input" min="0" step="0.01" value="10" />
+        </label>
+      </div>
+
+      <div class="split-items">
+        <div class="split-items__head">
+          <h3>商品列表</h3>
+          <button type="button" id="split-add-item" class="split-btn split-btn--ghost split-btn--sm">
+            + 添加商品
+          </button>
+        </div>
+        <div class="split-table-wrap">
+          <table class="split-table">
+            <thead>
+              <tr>
+                <th>商品名</th>
+                <th>原价 (¥)</th>
+                <th>归属人</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="split-items-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <button type="submit" class="btn split-submit">计算分摊</button>
+    </form>
+
+    <section class="split-output">
+      <p id="split-summary" class="split-summary" aria-live="polite"></p>
+      <div id="split-results" class="split-results" hidden></div>
+    </section>
+  </article>
+</BaseLayout>
+
+<script src="../../scripts/split-calculator.ts"></script>
+
+<style>
+  .split-page {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+    max-width: 900px;
+  }
+
+  .split-page h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    color: var(--text);
+  }
+
+  .split-rules {
+    margin-bottom: 1.5rem;
+  }
+
+  .split-rules ol {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: var(--text-muted);
+  }
+
+  .split-rules li {
+    margin-bottom: 0.35rem;
+  }
+
+  .split-form {
+    margin-bottom: 2rem;
+  }
+
+  .split-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .split-toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .split-toggle__track {
+    position: relative;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 1.5rem;
+    background: var(--border);
+    border-radius: 999px;
+    transition: background 0.2s ease;
+  }
+
+  .split-toggle__track::after {
+    content: "";
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    background: var(--text);
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+  }
+
+  .split-toggle input:checked + .split-toggle__track {
+    background: var(--accent-dim);
+  }
+
+  .split-toggle input:checked + .split-toggle__track::after {
+    transform: translateX(1.25rem);
+  }
+
+  .split-toggle input:focus-visible + .split-toggle__track {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .split-toggle__label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .split-fees {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    margin-bottom: 1.5rem;
+  }
+
+  .split-fees__fixed {
+    display: contents;
+  }
+
+  .split-fees__fixed[hidden] {
+    display: none;
+  }
+
+  .split-fees label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .split-input {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: border-color 0.2s ease;
+  }
+
+  .split-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .split-items__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .split-items__head h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .split-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 1.25rem;
+  }
+
+  .split-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .split-table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem 0.5rem 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .split-table td {
+    padding: 0.5rem 0.75rem 0.5rem 0;
+    vertical-align: middle;
+  }
+
+  .split-btn {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .split-btn--ghost {
+    padding: 0.4rem 0.75rem;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+  }
+
+  .split-btn--ghost:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .split-btn--sm {
+    font-size: 0.8rem;
+  }
+
+  .split-submit {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .split-summary {
+    margin-bottom: 1.25rem;
+    color: var(--text-muted);
+  }
+
+  .split-summary :global(.split-summary__grid) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .split-summary :global(.split-summary__grid strong) {
+    color: var(--accent);
+    margin-left: 0.25rem;
+  }
+
+  .split-results {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .split-results :global(.split-person) {
+    border-left: 4px solid var(--person-color, var(--accent));
+  }
+
+  .split-results :global(.split-person h3) {
+    margin: 0 0 1rem;
+    color: var(--person-color, var(--accent));
+  }
+
+  .split-results :global(.split-table--result th:last-child),
+  .split-results :global(.split-table--result td:last-child) {
+    text-align: right;
+  }
+
+  .split-results :global(.split-person__totals) {
+    margin: 1rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .split-results :global(.split-person__totals div) {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.35rem;
+    font-size: 0.9rem;
+  }
+
+  .split-results :global(.split-person__totals dt) {
+    color: var(--text-muted);
+  }
+
+  .split-results :global(.split-person__totals dd) {
+    margin: 0;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .split-results :global(.split-person__final) {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--border);
+    font-size: 1rem;
+  }
+
+  .split-results :global(.split-person__final dt) {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .split-results :global(.split-person__final dd) {
+    color: var(--person-color, var(--accent));
+    font-size: 1.25rem;
+    font-weight: 700;
+    padding: 0.2rem 0.65rem;
+    background: color-mix(in srgb, var(--person-color, var(--accent)) 18%, transparent);
+    border-radius: 6px;
+  }
+</style>
