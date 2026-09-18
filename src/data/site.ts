@@ -68,4 +68,10 @@ export const notes = [
     date: "2026",
     href: "/notes/split",
   },
+  {
+    title: "响应体解密",
+    summary: "AES-256-GCM 信封解密、反向加密自测与 JWT 解析速查，含大整数精度保护。",
+    date: "2026",
+    href: "/notes/crypto",
+  },
 ] as const

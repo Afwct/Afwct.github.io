@@ -1,0 +1,256 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import PageHero from "../../components/PageHero.astro"
+import PageNav from "../../components/PageNav.astro"
+import { noteBreadcrumbs } from "../../data/nav"
+
+const crumbs = noteBreadcrumbs("响应体解密")
+---
+
+<BaseLayout
+  title="响应体解密"
+  description="AES-256-GCM 信封解密、反向加密自测与 JWT 解析速查。"
+>
+  <PageHero
+    eyebrow="Notes / Crypto"
+    title="响应体解密"
+    subtitle="算法 AES-256-GCM · 信封 &lbrace;iv, tag, data&rbrace;（均 base64）· 会话密钥 sk 取自 Redis 键 CRYPTO:SK:&lbrace;bizToken&rbrace;"
+  />
+  <PageNav crumbs={crumbs} backHref="/notes" backLabel="返回笔记列表" />
+
+  <article class="section container crypto-page" data-animate>
+    <div id="crypto-env-banner" class="crypto-banner" hidden></div>
+
+    <!-- ============ 1. 解密 ============ -->
+    <section class="card crypto-card">
+      <h2>解密响应体</h2>
+
+      <label class="crypto-field">
+        <span>响应密文（整段 body 直接粘贴，形如 &lbrace;&quot;iv&quot;:&quot;...&quot;,&quot;tag&quot;:&quot;...&quot;,&quot;data&quot;:&quot;...&quot;&rbrace;）</span>
+        <textarea
+          id="crypto-envelope"
+          class="crypto-input"
+          rows="4"
+          placeholder='{"iv":"xxxx","tag":"yyyy","data":"zzzz"}'></textarea>
+      </label>
+
+      <label class="crypto-field">
+        <span>会话密钥 sk（base64，来自 Redis）</span>
+        <input
+          id="crypto-key"
+          class="crypto-input"
+          type="text"
+          placeholder="粘贴 CRYPTO:SK:&lbrace;bizToken&rbrace; 的值，例如 5Kd9...（base64）"
+        />
+      </label>
+
+      <div class="crypto-actions">
+        <button id="crypto-decrypt" type="button" class="btn">解密</button>
+        <button id="crypto-clear" type="button" class="btn btn--ghost">清空</button>
+        <button id="crypto-sample" type="button" class="btn btn--ghost">填入自测样例</button>
+      </div>
+
+      <pre id="crypto-output" class="crypto-output" hidden></pre>
+
+      <p class="crypto-hint">
+        取密钥：<b>redis-cli GET CRYPTO:SK:&lbrace;bizToken&rbrace;</b> —— bizToken 是 JWT 里的 claim，
+        下方「JWT 解析」可直接算出来。
+      </p>
+    </section>
+
+    <!-- ============ 2. 反向加密 ============ -->
+    <section class="card crypto-card">
+      <h2>反向加密（造一份密文，验证前端能解开）</h2>
+
+      <label class="crypto-field">
+        <span>明文 JSON</span>
+        <textarea
+          id="crypto-plain"
+          class="crypto-input"
+          rows="3"
+          placeholder='{"code":200,"message":"ok","data":{"id":1}}'></textarea>
+      </label>
+
+      <label class="crypto-field">
+        <span>会话密钥 sk（base64，同上）</span>
+        <input
+          id="crypto-key2"
+          class="crypto-input"
+          type="text"
+          placeholder="留空则随机生成一把，并在结果里告诉你"
+        />
+      </label>
+
+      <div class="crypto-actions">
+        <button id="crypto-encrypt" type="button" class="btn">加密为 &lbrace;iv,tag,data&rbrace;</button>
+      </div>
+
+      <pre id="crypto-output2" class="crypto-output" hidden></pre>
+    </section>
+
+    <!-- ============ 3. JWT 解析 ============ -->
+    <section class="card crypto-card">
+      <h2>JWT 解析 → 算出 Redis 键名</h2>
+
+      <label class="crypto-field">
+        <span>Authorization 里的 JWT（不含 "Bearer " 前缀）</span>
+        <input
+          id="crypto-jwt"
+          class="crypto-input"
+          type="text"
+          placeholder="eyJhbGciOiJIUzI1NiJ9.eyJiaXpUb2tlbiI6Ii4uLiJ9.xxx"
+        />
+      </label>
+
+      <div class="crypto-actions">
+        <button id="crypto-jwt-parse" type="button" class="btn">解析</button>
+      </div>
+
+      <pre id="crypto-output3" class="crypto-output" hidden></pre>
+    </section>
+
+    <!-- ============ 备忘：原理与坑 ============ -->
+    <section class="card crypto-card crypto-notes">
+      <h2>实现备忘</h2>
+      <ul>
+        <li>
+          <b>拼接顺序</b>：后端把密文拆成 <code>data</code> 与 <code>tag</code> 两段分别
+          base64，而 WebCrypto 要求输入是「密文 || tag」的连续字节，顺序拼反会直接
+          <code>OperationError</code>；加密时反向操作，把末 16 字节切出来当 tag。
+        </li>
+        <li>
+          <b>长度校验</b>：<code>iv</code> 12 字节、<code>tag</code> 16 字节、
+          <code>sk</code> 32 字节。密钥长度不对是最高频的联调事故，提前拦住比解密失败好排查。
+        </li>
+        <li>
+          <b>大整数精度</b>：<code>JSON.parse</code> 会把 18 位雪花 id 的末位改掉且不可逆，
+          所以先按字符扫描给超范围的整数字面量补引号，再解析缩进；判断是否超范围必须用
+          字符串比较，<code>Number()</code> 本身就会先丢精度。
+        </li>
+        <li>
+          <b>密钥来源</b>：JWT payload 里的 <code>bizToken</code> claim 拼出 Redis 键名，
+          <code>CRYPTO:SK</code> 默认 TTL 600 分钟，过期后需重新取 token。
+        </li>
+      </ul>
+    </section>
+  </article>
+</BaseLayout>
+
+<script src="../../scripts/crypto-decrypt.ts"></script>
+
+<style>
+  .crypto-page {
+    display: grid;
+    gap: 1.5rem;
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+    max-width: 900px;
+  }
+
+  .crypto-card h2 {
+    margin: 0 0 1rem;
+    font-size: 1.15rem;
+    color: var(--text);
+  }
+
+  .crypto-banner {
+    padding: 0.85rem 1rem;
+    font-size: 0.9rem;
+    color: #fca5a5;
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    border-radius: var(--radius);
+  }
+
+  .crypto-field {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .crypto-field > span {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .crypto-input {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+  }
+
+  .crypto-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .crypto-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .crypto-output {
+    margin: 1.25rem 0 0;
+    padding: 1rem;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 26rem;
+    overflow: auto;
+  }
+
+  .crypto-output[data-state="err"] {
+    color: #fca5a5;
+    border-left-color: #f87171;
+  }
+
+  .crypto-hint {
+    margin: 1rem 0 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .crypto-hint b {
+    color: var(--accent-warm);
+    font-family: ui-monospace, Consolas, monospace;
+    font-weight: 600;
+  }
+
+  .crypto-notes ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .crypto-notes li {
+    margin-bottom: 0.6rem;
+  }
+
+  .crypto-notes b {
+    color: var(--text);
+  }
+
+  .crypto-notes code {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.9em;
+    color: var(--accent);
+  }
+</style>
