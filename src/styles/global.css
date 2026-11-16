@@ -1,4 +1,12 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Syne:wght@500;600;700;800&display=swap");
+@font-face {
+  font-family: "HYWenHei";
+  src:
+    url("/fonts/HYWenHei-75W.woff2") format("woff2"),
+    url("/fonts/HYWenHei-75W.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --bg: #08080c;
@@ -11,8 +19,8 @@
   --accent-dim: #34d399;
   --accent-warm: #fbbf24;
   --glow: rgba(110, 231, 183, 0.15);
-  --font-display: "Syne", system-ui, sans-serif;
-  --font-body: "DM Sans", system-ui, sans-serif;
+  --font-display: "HYWenHei", system-ui, sans-serif;
+  --font-body: "HYWenHei", system-ui, sans-serif;
   --radius: 12px;
   --max-width: 1120px;
   --header-h: 72px;
@@ -341,5 +349,3 @@ p strong,
 [data-drag] {
   touch-action: none;
 }
-
-
