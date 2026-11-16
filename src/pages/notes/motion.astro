@@ -19,29 +19,60 @@ const crumbs = noteBreadcrumbs("动效设计备忘")
   <PageNav crumbs={crumbs} backHref="/notes" backLabel="返回笔记列表" />
 
   <article class="section container prose" data-animate>
+    <h2>分层结构</h2>
+    <p>
+      动效拆成三层：<code>src/lib/motion/*</code> 提供可复用能力，
+      <code>src/scripts/page-motion.ts</code> 负责编排，页面只通过 <code>data-*</code>
+      属性声明意图，不写补间代码。
+    </p>
+
     <h2>使用的插件</h2>
     <p>
-      注册 <code>ScrollTrigger</code> 处理滚动进入视口的元素淡入； 首页 Hero 使用时间轴
-      <code>timeline</code> 编排入场顺序。
+      <code>ScrollTrigger</code> 负责滚动触发、视差与阅读进度；<code>SplitText</code>
+      负责标题逐行遮罩揭示；<code>Draggable</code> + <code>Inertia</code> 负责可拖拽视觉；
+      <code>ScrambleText</code> 做悬停乱码解码；toast 另用 <code>DrawSVG</code> 做图标描边、
+      <code>Physics2D</code> 做粒子抛散。
     </p>
 
     <h2>数据属性约定</h2>
     <ul>
-      <li><code>data-hero-*</code> — 页面顶部主视觉</li>
-      <li><code>data-animate</code> — 通用滚动淡入</li>
-      <li><code>data-card</code> — 卡片错落出现</li>
-      <li><code>data-line</code> — 分割线 scale 动画</li>
+      <li><code>data-hero-*</code> — 首屏编曲（eyebrow / 标题 / 副标题 / CTA / 视觉）</li>
+      <li><code>data-animate</code> — 通用滚动揭示（裁切揭开，非单纯淡入）</li>
+      <li><code>data-reveal</code> — 揭示形态：<code>up | down | left | right | mask | scale</code></li>
+      <li><code>data-split</code> — 标题逐行遮罩揭示</li>
+      <li><code>data-stagger</code> — 容器内子项成组交错</li>
+      <li><code>data-card</code> — 卡片交错入场 + 3D 倾斜 + 光斑 + 高光扫边 + 悬停上浮</li>
+      <li><code>data-parallax</code> — 视差强度，如 <code>0.18</code></li>
+      <li><code>data-magnetic</code> — 磁吸按钮</li>
+      <li><code>data-line</code> — 分割线从左侧展开</li>
+      <li><code>data-timeline</code> / <code>data-timeline-item</code> — 连线随滚动生长 + 子项交错</li>
+      <li><code>data-ripple</code> — 点击涟漪（<code>.btn</code> 默认启用）</li>
+      <li><code>data-swap</code> — 文字双轨上滑</li>
+      <li><code>data-scramble</code> — 悬停乱码解码</li>
+      <li><code>data-drag</code> — 可拖拽（带惯性，首页轨道）</li>
     </ul>
+
+    <h2>交互层</h2>
+    <p>
+      点击有涟漪与按压缩放；卡片悬停时倾斜、边框光斑跟随、高光扫过、内层文字轻微反向位移；
+      链接文字双轨上滑；标题悬停乱码解码；首页轨道可拖拽并带惯性。这些全部由
+      <code>allowsPointerEffects()</code> 把关：触屏、窄屏或开启减弱动效时不会创建任何装饰层，
+      鼠标指针保持系统原生样式。
+    </p>
 
     <h2>页面过渡</h2>
     <p>
-      站内链接点击时先将 <code>main</code> 淡出，再跳转，进入新页后淡入。 保留 modifier
-      键打开新标签的默认行为。
+      点击站内链接时，内容分层错位并淡出，同时遮罩自上而下擦除，随后跳转；入口不做遮挡，
+      交由首屏编曲承担，避免无 JS 时白屏。返回时监听 <code>pageshow</code> 的
+      <code>persisted</code> 复位，避免 bfcache 命中后停留在淡出态。保留 modifier
+      键、外链与同页锚点的默认行为。
     </p>
 
-    <h2>无障碍</h2>
+    <h2>无障碍与降级</h2>
     <p>
-      检测 <code>prefers-reduced-motion: reduce</code> 时跳过动画，直接显示内容。
+      检测 <code>prefers-reduced-motion: reduce</code> 时跳过全部装饰性动效，内容立即可见；
+      但顶栏滚动态背景这类<strong>功能性</strong>行为仍然生效。所有「初始隐藏」都由 JS
+      设置，因此禁用 JS 时内容照常可读；触屏与窄屏会关闭倾斜、磁吸与视差。
     </p>
   </article>
 </BaseLayout>

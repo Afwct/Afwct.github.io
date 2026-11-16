@@ -23,7 +23,7 @@ import { notes } from "../../data/site"
         notes.map((n) => (
           <a href={n.href} class="card notes-card" data-card>
             <span class="notes-card__date">{n.date}</span>
-            <h3>{n.title}</h3>
+            <h3 data-swap>{n.title}</h3>
             <p>{n.summary}</p>
             <span class="notes-card__arrow">阅读 →</span>
           </a>
@@ -46,9 +46,7 @@ import { notes } from "../../data/site"
     color: inherit;
   }
 
-  .notes-card:hover {
-    transform: translateY(-4px);
-  }
+  /* 悬停上浮由 page-motion 的卡片补间负责，避免与倾斜的内联 transform 打架 */
 
   .notes-card__date {
     font-size: 0.75rem;

@@ -7,7 +7,7 @@ import { site, projects, notes } from "../data/site"
   <div data-home>
     <section class="home-hero container">
       <div class="home-hero__content">
-        <p class="section-label" data-hero-eyebrow>Developer · Builder</p>
+        <p class="section-label" data-hero-eyebrow data-scramble>Developer · Builder</p>
         <h1 class="home-hero__title" data-hero-title>
           你好，我是 <span class="text-accent">{site.name}</span>
         </h1>
@@ -16,12 +16,12 @@ import { site, projects, notes } from "../data/site"
           驱动，发布于 {site.domain}。
         </p>
         <div class="home-hero__cta" data-hero-cta>
-          <a href="/projects" class="btn">查看项目</a>
-          <a href="/about" class="btn btn--ghost">了解更多</a>
+          <a href="/projects" class="btn" data-magnetic>查看项目</a>
+          <a href="/about" class="btn btn--ghost" data-magnetic>了解更多</a>
         </div>
       </div>
       <div class="home-hero__visual" data-hero-visual aria-hidden="true">
-        <div class="orbit" data-orbit>
+        <div class="orbit" data-orbit data-parallax="0.08" data-drag>
           <span class="orbit__ring"></span>
           <span class="orbit__dot orbit__dot--1"></span>
           <span class="orbit__dot orbit__dot--2"></span>
@@ -56,9 +56,9 @@ import { site, projects, notes } from "../data/site"
     </section>
 
     <section class="section container">
-      <div class="section-head" data-animate>
-        <p class="section-label">精选项目</p>
-        <h2>最近在做什么</h2>
+      <div class="section-head">
+        <p class="section-label" data-animate>精选项目</p>
+        <h2 data-split>最近在做什么</h2>
       </div>
       <div class="card-grid">
         {
@@ -75,6 +75,7 @@ import { site, projects, notes } from "../data/site"
                 href={p.link}
                 target={p.link.startsWith("http") ? "_blank" : undefined}
                 rel="noopener noreferrer"
+                data-swap
               >
                 查看 →
               </a>
@@ -89,9 +90,9 @@ import { site, projects, notes } from "../data/site"
 
     <section class="section section--alt">
       <div class="container">
-        <div class="section-head" data-animate>
-          <p class="section-label">笔记</p>
-          <h2>阅读与备忘</h2>
+        <div class="section-head">
+          <p class="section-label" data-animate>笔记</p>
+          <h2 data-split>阅读与备忘</h2>
         </div>
         <ul class="note-list">
           {

@@ -1,7 +1,7 @@
 ---
 // 全局消息提示容器：由 BaseLayout 挂载一次，全站生效。
 // 用法：import { toast } from "../lib/toast" → toast.success("...")
-//      控制台里也可直接 window.toast.error("...")
+// 控制台里也可直接 window.toast.error("...")
 ---
 
 <div id="toast-host" class="toast-host"></div>
@@ -15,7 +15,9 @@
 
 <style is:global>
   /* 提示是 JS 动态创建的元素，拿不到 Astro 的 scoped 属性，故用全局样式，
-     选择器统一以 .toast 前缀收敛，避免污染站点其它部分。 */
+     选择器统一以 .toast 前缀收敛，避免污染站点其它部分。
+
+     三层结构：.toast-slot（流布局 + 补位）> .toast-depth（纵深）> .toast（卡片） */
   .toast-host {
     position: fixed;
     z-index: 200; /* 高于 Header 的 100 */
@@ -27,8 +29,64 @@
     width: min(23rem, calc(100vw - 2rem));
     /* 容器本身不吃点击，只有提示卡片可交互 */
     pointer-events: none;
+    perspective: 1000px;
+    perspective-origin: 50% 100%;
   }
 
+  .toast-slot {
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .toast-depth {
+    transform-style: preserve-3d;
+    transform-origin: 50% 100%;
+    will-change: transform;
+  }
+
+  /* ---- 配色：放到 slot 上，让粒子层也能继承到 --toast-color ---- */
+  .toast-slot--success,
+  .toast--success {
+    --toast-color: var(--accent);
+  }
+
+  .toast-slot--error,
+  .toast--error {
+    --toast-color: #f87171;
+  }
+
+  .toast-slot--warning,
+  .toast--warning {
+    --toast-color: var(--accent-warm);
+  }
+
+  .toast-slot--info,
+  .toast--info {
+    --toast-color: #60a5fa;
+  }
+
+  /* ---- 粒子层：在卡片外侧，才能飞出卡片边界 ---- */
+  .toast-particles {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .toast-particle {
+    position: absolute;
+    inset-block-start: 1.15rem;
+    inset-inline-start: 1.4rem;
+    width: 4px;
+    height: 4px;
+    background: var(--toast-color);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--toast-color);
+  }
+
+  /* ---- 卡片本体 ---- */
   .toast {
     --toast-color: var(--accent);
     position: relative;
@@ -44,43 +102,35 @@
     border-radius: var(--radius);
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
     pointer-events: auto;
-    will-change: transform, opacity;
   }
 
-  .toast--success {
-    --toast-color: var(--accent);
-  }
-
-  .toast--error {
-    --toast-color: #f87171;
-  }
-
-  .toast--warning {
-    --toast-color: var(--accent-warm);
-  }
-
-  .toast--info {
-    --toast-color: #60a5fa;
-  }
-
+  /* ---- 图标：SVG 底座 + 扩散能量环 ---- */
   .toast__icon {
+    position: relative;
     display: grid;
     flex-shrink: 0;
     place-items: center;
-    width: 1.35rem;
-    height: 1.35rem;
-    margin-top: 0.1rem;
-    font-family: var(--font-display);
-    font-size: 0.72rem;
-    font-weight: 700;
-    line-height: 1;
+    width: 1.45rem;
+    height: 1.45rem;
+    margin-top: 0.05rem;
     color: var(--toast-color);
     background: color-mix(in srgb, var(--toast-color) 16%, transparent);
     border-radius: 50%;
   }
 
-  .toast--info .toast__icon {
-    font-style: italic;
+  .toast__icon svg {
+    display: block;
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+
+  .toast__ring {
+    position: absolute;
+    inset: -0.15rem;
+    opacity: 0;
+    border: 1px solid var(--toast-color);
+    border-radius: 50%;
+    pointer-events: none;
   }
 
   .toast__body {
@@ -150,22 +200,88 @@
     background: color-mix(in srgb, var(--toast-color) 24%, transparent);
   }
 
+  /* ---- 装饰层：高光扫过 + 指针光斑 ---- */
+  .toast__shine {
+    position: absolute;
+    inset-block: -40%;
+    inset-inline: -60%;
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      rgba(255, 255, 255, 0.16) 50%,
+      transparent 62%
+    );
+    transform: translateX(-140%);
+    pointer-events: none;
+  }
+
+  .toast__spotlight {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: radial-gradient(
+      120px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--toast-color) 16%, transparent),
+      transparent 70%
+    );
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .toast:hover .toast__spotlight {
+    opacity: 1;
+  }
+
+  /* ---- 倒计时条：加发光与末端亮点 ---- */
   .toast__progress {
     position: absolute;
     inset-inline: 0;
     inset-block-end: 0;
     height: 2px;
     background: var(--toast-color);
-    opacity: 0.5;
+    opacity: 0.6;
     transform-origin: left center;
+    box-shadow: 0 0 10px var(--toast-color);
   }
 
+  .toast__progress::after {
+    content: "";
+    position: absolute;
+    inset-block: -1px;
+    inset-inline-end: 0;
+    width: 6px;
+    background: var(--toast-color);
+    border-radius: 50%;
+    filter: blur(1px);
+  }
+
+  /* ---- 减弱动效：去掉所有装饰层，只留淡入淡出（由 JS 负责） ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .toast-particles,
+    .toast__shine,
+    .toast__spotlight,
+    .toast__ring {
+      display: none;
+    }
+
+    .toast-slot,
+    .toast-depth {
+      will-change: auto;
+    }
+  }
+
+  /* ---- 触屏 / 窄屏：关掉 3D 纵深与光斑 ---- */
   @media (max-width: 480px) {
     .toast-host {
       inset-inline: 0;
       inset-block-end: 0;
       width: 100%;
       padding: 0.75rem;
+      perspective: none;
+    }
+
+    .toast__spotlight {
+      display: none;
     }
   }
 </style>

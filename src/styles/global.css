@@ -114,6 +114,7 @@ p strong,
 }
 
 .btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -125,14 +126,14 @@ p strong,
   background: var(--accent);
   border: none;
   border-radius: 999px;
+  /* 涟漪需要裁到按钮圆角内 */
+  overflow: hidden;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  /* 位移交给 JS（磁吸 / 悬停补间），CSS 只过渡阴影，避免两者的 transform 互相覆盖 */
+  transition: box-shadow 0.2s ease;
 }
 
 .btn:hover {
-  transform: translateY(-2px);
   box-shadow: 0 8px 24px var(--glow);
   color: var(--bg);
 }
@@ -191,3 +192,154 @@ p strong,
   padding-top: var(--header-h);
   min-height: calc(100vh - var(--header-h));
 }
+
+/* ---------- 页面动效运行时元素（均由脚本按需创建） ---------- */
+
+/* 转场遮罩：默认不显示，也无 JS 时不存在 */
+.page-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      rgba(110, 231, 183, 0.14),
+      transparent
+    ),
+    linear-gradient(160deg, var(--bg), var(--bg-elevated) 65%);
+}
+
+/* 顶部阅读进度条 */
+.scroll-progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 2px;
+  z-index: 120;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+/* SplitText 逐行遮罩：给降部留出空间，避免被裁切 */
+.split-line {
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+/* ---------- 交互层 ---------- */
+
+/* 自定义光标：只有脚本成功挂载后才隐藏原生光标 */
+/* 点击涟漪 */
+.ripple {
+  position: absolute;
+  display: block;
+  background: currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 卡片：高光扫过 + 指针光斑 + 内层视差 */
+.card {
+  position: relative;
+  overflow: hidden;
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 装饰层必须脱离文档流。
+   下面这条曾缺失：`.card > *` 与 `.ripple` 权重相同且在其后，会把涟漪的
+   position:absolute 覆盖成 relative —— 涟漪尺寸是卡片的两倍，于是点击卡片
+   时它进入文档流、把卡片瞬间撑得极长。这里显式钉死。 */
+.card > .ripple,
+.card > .card-shine {
+  position: absolute;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    180px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(110, 231, 183, 0.16),
+    transparent 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card-shine {
+  position: absolute;
+  z-index: 2;
+  inset-block: -40%;
+  inset-inline: -60%;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.14) 50%,
+    transparent 62%
+  );
+  transform: translateX(-140%);
+  pointer-events: none;
+}
+
+.card h3,
+.card > p,
+.card .card__tags {
+  transition: transform 0.3s ease;
+}
+
+.card:hover h3,
+.card:hover > p,
+.card:hover .card__tags {
+  transform: translate3d(
+    calc((var(--mx, 50%) - 50%) * 0.08),
+    calc((var(--my, 50%) - 50%) * 0.08),
+    0
+  );
+}
+
+/* 链接文字双轨上滑 */
+.swap {
+  display: inline-grid;
+  overflow: hidden;
+  line-height: 1.25;
+}
+
+.swap > * {
+  grid-area: 1 / 1;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.swap__out {
+  transform: translateY(105%);
+}
+
+[data-swap]:hover .swap__in {
+  transform: translateY(-105%);
+}
+
+[data-swap]:hover .swap__out {
+  transform: translateY(0);
+}
+
+/* 可拖拽元素 */
+[data-drag] {
+  touch-action: none;
+}
+
+

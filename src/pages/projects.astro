@@ -30,6 +30,7 @@ import { projects } from "../data/site"
               rel={
                 p.link.startsWith("http") ? "noopener noreferrer" : undefined
               }
+              data-swap
             >
               打开项目 →
             </a>
@@ -42,7 +43,7 @@ import { projects } from "../data/site"
   <section class="section container cta-block" data-animate>
     <h2>有更多想法？</h2>
     <p>欢迎通过 GitHub Issue 或邮件交流协作与反馈。</p>
-    <a href="/contact" class="btn">联系我</a>
+    <a href="/contact" class="btn" data-magnetic>联系我</a>
   </section>
 </BaseLayout>
 
