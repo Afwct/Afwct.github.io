@@ -1,0 +1,171 @@
+---
+// 全局消息提示容器：由 BaseLayout 挂载一次，全站生效。
+// 用法：import { toast } from "../lib/toast" → toast.success("...")
+//      控制台里也可直接 window.toast.error("...")
+---
+
+<div id="toast-host" class="toast-host"></div>
+
+<script>
+  import { toast } from "../lib/toast"
+
+  // 挂到 window 上，方便控制台调试与内联脚本临时调用
+  window.toast = toast
+</script>
+
+<style is:global>
+  /* 提示是 JS 动态创建的元素，拿不到 Astro 的 scoped 属性，故用全局样式，
+     选择器统一以 .toast 前缀收敛，避免污染站点其它部分。 */
+  .toast-host {
+    position: fixed;
+    z-index: 200; /* 高于 Header 的 100 */
+    inset-inline-end: 1rem;
+    inset-block-end: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: min(23rem, calc(100vw - 2rem));
+    /* 容器本身不吃点击，只有提示卡片可交互 */
+    pointer-events: none;
+  }
+
+  .toast {
+    --toast-color: var(--accent);
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 0.85rem 0.9rem 0.9rem 0.95rem;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-inline-start: 3px solid var(--toast-color);
+    border-radius: var(--radius);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+    pointer-events: auto;
+    will-change: transform, opacity;
+  }
+
+  .toast--success {
+    --toast-color: var(--accent);
+  }
+
+  .toast--error {
+    --toast-color: #f87171;
+  }
+
+  .toast--warning {
+    --toast-color: var(--accent-warm);
+  }
+
+  .toast--info {
+    --toast-color: #60a5fa;
+  }
+
+  .toast__icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin-top: 0.1rem;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--toast-color);
+    background: color-mix(in srgb, var(--toast-color) 16%, transparent);
+    border-radius: 50%;
+  }
+
+  .toast--info .toast__icon {
+    font-style: italic;
+  }
+
+  .toast__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toast__title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  .toast__desc {
+    margin: 0.2rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .toast__close {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    font-size: 0.68rem;
+    line-height: 1;
+    color: var(--text-muted);
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .toast__close:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .toast__close:focus-visible,
+  .toast__action:focus-visible {
+    outline: 2px solid var(--toast-color);
+    outline-offset: 1px;
+  }
+
+  .toast__action {
+    margin-top: 0.55rem;
+    padding: 0.3rem 0.7rem;
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--toast-color);
+    background: color-mix(in srgb, var(--toast-color) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--toast-color) 35%, transparent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .toast__action:hover {
+    background: color-mix(in srgb, var(--toast-color) 24%, transparent);
+  }
+
+  .toast__progress {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    height: 2px;
+    background: var(--toast-color);
+    opacity: 0.5;
+    transform-origin: left center;
+  }
+
+  @media (max-width: 480px) {
+    .toast-host {
+      inset-inline: 0;
+      inset-block-end: 0;
+      width: 100%;
+      padding: 0.75rem;
+    }
+  }
+</style>

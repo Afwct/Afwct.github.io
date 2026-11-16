@@ -1,4 +1,5 @@
 import { calculateSplit } from "../lib/calculateSplit"
+import { toast } from "../lib/toast"
 
 const PERSON_COLORS = [
   "#6ee7b7",
@@ -90,6 +91,9 @@ function initSplitCalculator() {
     if (items.length === 0) {
       resultsEl.hidden = true
       summaryEl.textContent = "请至少填写一条完整商品（名称、价格、归属人）。"
+      toast.error("无法计算分摊", {
+        description: "请至少填写一条完整商品（名称、价格、归属人）",
+      })
       return
     }
 
@@ -173,6 +177,9 @@ function initSplitCalculator() {
       .join("")
 
     resultsEl.hidden = false
+    toast.success("分摊完成", {
+      description: `共 ${result.personResults.length} 人，实付合计 ¥${formatMoney(result.actualPay)}`,
+    })
   })
 }
 

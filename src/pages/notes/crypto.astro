@@ -31,7 +31,9 @@ const crumbs = noteBreadcrumbs("响应体解密")
           id="crypto-envelope"
           class="crypto-input"
           rows="4"
-          placeholder='{"iv":"xxxx","tag":"yyyy","data":"zzzz"}'></textarea>
+          placeholder='{"iv":"xxxx","tag":"yyyy","data":"zzzz"}'
+          onclick="select()"
+        />
       </label>
 
       <label class="crypto-field">
@@ -41,6 +43,8 @@ const crumbs = noteBreadcrumbs("响应体解密")
           class="crypto-input"
           type="text"
           placeholder="粘贴 CRYPTO:SK:&lbrace;bizToken&rbrace; 的值，例如 5Kd9...（base64）"
+          value="CoviBEzPQx6/5kqfdNJdb59264x2qCLpkXxvxMAIuJ0="
+          onclick="select()"
         />
       </label>
 
@@ -50,7 +54,7 @@ const crumbs = noteBreadcrumbs("响应体解密")
         <button id="crypto-sample" type="button" class="btn btn--ghost">填入自测样例</button>
       </div>
 
-      <pre id="crypto-output" class="crypto-output" hidden></pre>
+      <pre id="crypto-output" class="crypto-output" hidden />
 
       <p class="crypto-hint">
         取密钥：<b>redis-cli GET CRYPTO:SK:&lbrace;bizToken&rbrace;</b> —— bizToken 是 JWT 里的 claim，
