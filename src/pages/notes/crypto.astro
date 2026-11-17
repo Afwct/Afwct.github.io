@@ -51,6 +51,14 @@ const crumbs = noteBreadcrumbs("响应体解密")
         <button id="crypto-decrypt" type="button" class="btn">解密</button>
         <button id="crypto-clear" type="button" class="btn btn--ghost">清空</button>
         <button id="crypto-sample" type="button" class="btn btn--ghost">填入自测样例</button>
+        <button
+          id="crypto-copy"
+          type="button"
+          class="btn btn--ghost crypto-copy"
+          disabled
+        >
+          复制
+        </button>
       </div>
 
       <pre id="crypto-output" class="crypto-output" hidden />
@@ -110,6 +118,63 @@ const crumbs = noteBreadcrumbs("响应体解密")
       </div>
 
       <pre id="crypto-output3" class="crypto-output" hidden></pre>
+    </section>
+
+    <!-- ============ 4. JSON 对比 ============ -->
+    <section class="card crypto-card">
+      <h2>JSON 对比</h2>
+
+      <div class="diff-grid">
+        <label class="crypto-field">
+          <span>左侧 JSON</span>
+          <textarea
+            id="diff-left"
+            class="crypto-input"
+            rows="9"
+            placeholder='{"code":200,"data":{"id":1,"name":"旧值"}}'
+          />
+        </label>
+
+        <label class="crypto-field">
+          <span>右侧 JSON</span>
+          <textarea
+            id="diff-right"
+            class="crypto-input"
+            rows="9"
+            placeholder='{"code":200,"data":{"id":1,"name":"新值","extra":true}}'
+          />
+        </label>
+      </div>
+
+      <div class="crypto-actions">
+        <button id="diff-run" type="button" class="btn">对比</button>
+        <button id="diff-clear" type="button" class="btn btn--ghost">清空</button>
+      </div>
+
+      <div id="diff-output" class="diff-output" hidden>
+        <p id="diff-summary" class="diff-summary"></p>
+
+        <div id="diff-table-wrap" class="diff-table-wrap" hidden>
+          <table class="diff-table">
+            <thead>
+              <tr>
+                <th scope="col">状态</th>
+                <th scope="col">路径</th>
+                <th scope="col">左侧</th>
+                <th scope="col">右侧</th>
+              </tr>
+            </thead>
+            <tbody id="diff-body"></tbody>
+          </table>
+        </div>
+
+        <p id="diff-more" class="diff-more" hidden></p>
+      </div>
+
+      <p class="crypto-hint">
+        按路径逐项比较：<b>+</b> 右侧新增 · <b>−</b> 左侧独有 · <b>~</b> 值不同；
+        对象键顺序不影响结果，超出安全范围的整数按原文比较不会失真。
+      </p>
     </section>
 
     <!-- ============ 备忘：原理与坑 ============ -->
@@ -200,6 +265,164 @@ const crumbs = noteBreadcrumbs("响应体解密")
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
+  }
+
+  /* 复制按钮靠在行末；没有解密结果时不可用 */
+  .crypto-copy {
+    margin-inline-start: auto;
+  }
+
+  .crypto-copy:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  /* ---- JSON 对比 ---- */
+  .diff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .diff-grid .crypto-field {
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 720px) {
+    .diff-grid {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+
+  /* ---- JSON 对比：结果用表格分栏 ---- */
+  .diff-output {
+    margin-top: 1.25rem;
+  }
+
+  .diff-summary {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .diff-summary[data-state="err"] {
+    color: #f87171;
+  }
+
+  .diff-table-wrap {
+    max-height: 26rem;
+    overflow: auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.8rem;
+    line-height: 1.55;
+  }
+
+  .diff-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-align: left;
+    white-space: nowrap;
+    color: var(--text-muted);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .diff-table th:nth-child(1) {
+    width: 3.25rem;
+  }
+
+  .diff-table th:nth-child(2) {
+    width: 40%;
+  }
+
+  .diff-table td {
+    padding: 0.45rem 0.75rem;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    word-break: break-all;
+  }
+
+  .diff-table tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .diff-marker {
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .diff-path {
+    color: var(--text);
+  }
+
+  .diff-value {
+    color: var(--text-muted);
+  }
+
+  /* 按差异类型给整行上色 */
+  .diff-row--added {
+    background: rgba(110, 231, 183, 0.06);
+  }
+
+  .diff-row--removed {
+    background: rgba(248, 113, 113, 0.06);
+  }
+
+  .diff-row--changed {
+    background: rgba(251, 191, 36, 0.05);
+  }
+
+  .diff-row--added .diff-marker {
+    color: #6ee7b7;
+  }
+
+  .diff-row--removed .diff-marker {
+    color: #f87171;
+  }
+
+  .diff-row--changed .diff-marker {
+    color: var(--accent-warm);
+  }
+
+  /* 变更行把"新值"提亮，便于一眼看出改成了什么 */
+  .diff-row--changed .diff-value--right,
+  .diff-row--added .diff-value--right {
+    color: var(--text);
+  }
+
+  .diff-more {
+    margin: 0.6rem 0 0;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 640px) {
+    .diff-table {
+      font-size: 0.74rem;
+    }
+
+    .diff-table th:nth-child(2) {
+      width: 34%;
+    }
+
+    .diff-table td,
+    .diff-table th {
+      padding: 0.4rem 0.5rem;
+    }
   }
 
   .crypto-output {
