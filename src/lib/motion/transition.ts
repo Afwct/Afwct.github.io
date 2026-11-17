@@ -30,7 +30,8 @@ function resolveDestination(
   if (destination.origin !== window.location.origin) return null
   if (destination.pathname === window.location.pathname) return null
 
-  return destination.pathname + destination.search
+  // hash 必须带上：像 /notes/json/#json-diff 这种跨页锚点，丢了 hash 就落不到目标区块
+  return destination.pathname + destination.search + destination.hash
 }
 
 /**

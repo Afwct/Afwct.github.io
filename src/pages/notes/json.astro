@@ -1,0 +1,365 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import PageHero from "../../components/PageHero.astro"
+import PageNav from "../../components/PageNav.astro"
+import { noteBreadcrumbs } from "../../data/nav"
+
+const crumbs = noteBreadcrumbs("JSON 工具")
+---
+
+<BaseLayout
+  title="JSON 工具"
+  description="JSON 格式化（兼容 JS 对象字面量）与按路径对比差异。"
+>
+  <PageHero
+    eyebrow="Notes / JSON"
+    title="JSON 工具"
+    subtitle="格式化：JSON 直接美化，JS 对象字面量先转成 JSON · 对比：按路径逐项列出差异"
+  />
+  <PageNav crumbs={crumbs} backHref="/notes" backLabel="返回笔记列表" />
+
+  <article class="section container json-page" data-animate>
+    <!-- ============ 1. 格式化 ============ -->
+    <section class="card json-card">
+      <h2>JSON 格式化</h2>
+
+      <label class="json-field">
+        <span>
+          输入 JSON，或直接粘贴 JS 对象字面量（如
+          &lbrace;a: 1, 'b': [1, 2],&rbrace;）
+        </span>
+        <textarea
+          id="fmt-input"
+          class="json-input"
+          rows="10"
+          placeholder='{"code":200,"message":"ok","data":[1,2,3]}'
+        ></textarea>
+      </label>
+
+      <div class="json-actions">
+        <button id="fmt-run" type="button" class="btn">格式化</button>
+        <button id="fmt-clear" type="button" class="btn btn--ghost">
+          清空
+        </button>
+        <button id="fmt-copy" type="button" class="btn btn--ghost json-copy" disabled>
+          复制
+        </button>
+      </div>
+
+      <pre id="fmt-output" class="json-output" hidden></pre>
+
+      <p class="json-hint">
+        支持未加引号的键、单引号字符串、尾随逗号与注释；只做字面量转换，
+        <b>不会执行</b>任何代码（函数调用、变量等表达式会直接报错）。
+        超出安全整数范围的数字会保留原值（显示为字符串），避免末位被改。
+      </p>
+    </section>
+
+    <!-- ============ 2. 对比 ============ -->
+    <section class="card json-card" id="json-diff">
+      <h2>JSON 对比</h2>
+
+      <div class="diff-grid">
+        <label class="json-field">
+          <span>左侧 JSON</span>
+          <textarea
+            id="diff-left"
+            class="json-input"
+            rows="9"
+            placeholder='{"code":200,"data":{"id":1,"name":"旧值"}}'
+          ></textarea>
+        </label>
+
+        <label class="json-field">
+          <span>右侧 JSON</span>
+          <textarea
+            id="diff-right"
+            class="json-input"
+            rows="9"
+            placeholder='{"code":200,"data":{"id":1,"name":"新值","extra":true}}'
+          ></textarea>
+        </label>
+      </div>
+
+      <div class="json-actions">
+        <button id="diff-run" type="button" class="btn">对比</button>
+        <button id="diff-clear" type="button" class="btn btn--ghost">
+          清空
+        </button>
+      </div>
+
+      <div id="diff-output" class="diff-output" hidden>
+        <p id="diff-summary" class="diff-summary"></p>
+
+        <div id="diff-table-wrap" class="diff-table-wrap" hidden>
+          <table class="diff-table">
+            <thead>
+              <tr>
+                <th scope="col">状态</th>
+                <th scope="col">路径</th>
+                <th scope="col">左侧</th>
+                <th scope="col">右侧</th>
+              </tr>
+            </thead>
+            <tbody id="diff-body"></tbody>
+          </table>
+        </div>
+
+        <p id="diff-more" class="diff-more" hidden></p>
+      </div>
+
+      <p class="json-hint">
+        按路径逐项比较：<b>+</b> 右侧新增 · <b>−</b> 左侧独有 · <b>~</b> 值不同；
+        对象键顺序不影响结果，超出安全范围的整数按原文比较不会失真。
+      </p>
+    </section>
+  </article>
+</BaseLayout>
+
+<script src="../../scripts/json-tools.ts"></script>
+
+<style>
+  .json-page {
+    display: grid;
+    gap: 1.5rem;
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+    max-width: 900px;
+  }
+
+  .json-card h2 {
+    margin: 0 0 1rem;
+    font-size: 1.15rem;
+    color: var(--text);
+  }
+
+  .json-field {
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .json-field > span {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .json-input {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+  }
+
+  .json-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .json-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .json-copy {
+    margin-inline-start: auto;
+  }
+
+  .json-copy:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .json-output {
+    margin: 1.25rem 0 0;
+    padding: 1rem;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 28rem;
+    overflow: auto;
+  }
+
+  .json-output[data-state="err"] {
+    color: #f87171;
+    border-left-color: #f87171;
+  }
+
+  .json-output[data-source="js-literal"] {
+    border-left-color: var(--accent-warm);
+  }
+
+  .json-hint {
+    margin: 1rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .json-hint b {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* 从外部链接跳过来时，别让固定顶栏盖住标题 */
+  #json-diff {
+    scroll-margin-top: calc(var(--header-h) + 1.25rem);
+  }
+
+  /* ---- 对比结果：表格分栏 ---- */
+  .diff-output {
+    margin-top: 1.25rem;
+  }
+
+  .diff-summary {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .diff-summary[data-state="err"] {
+    color: #f87171;
+  }
+
+  .diff-table-wrap {
+    max-height: 26rem;
+    overflow: auto;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.8rem;
+    line-height: 1.55;
+  }
+
+  .diff-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-align: left;
+    white-space: nowrap;
+    color: var(--text-muted);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .diff-table th:nth-child(1) {
+    width: 3.25rem;
+  }
+
+  .diff-table th:nth-child(2) {
+    width: 40%;
+  }
+
+  .diff-table td {
+    padding: 0.45rem 0.75rem;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    word-break: break-all;
+  }
+
+  .diff-table tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .diff-marker {
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .diff-path {
+    color: var(--text);
+  }
+
+  .diff-value {
+    color: var(--text-muted);
+  }
+
+  .diff-row--added {
+    background: rgba(110, 231, 183, 0.06);
+  }
+
+  .diff-row--removed {
+    background: rgba(248, 113, 113, 0.06);
+  }
+
+  .diff-row--changed {
+    background: rgba(251, 191, 36, 0.05);
+  }
+
+  .diff-row--added .diff-marker {
+    color: #6ee7b7;
+  }
+
+  .diff-row--removed .diff-marker {
+    color: #f87171;
+  }
+
+  .diff-row--changed .diff-marker {
+    color: var(--accent-warm);
+  }
+
+  .diff-row--changed .diff-value--right,
+  .diff-row--added .diff-value--right {
+    color: var(--text);
+  }
+
+  .diff-more {
+    margin: 0.6rem 0 0;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .diff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 720px) {
+    .diff-grid {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .diff-table {
+      font-size: 0.74rem;
+    }
+
+    .diff-table th:nth-child(2) {
+      width: 34%;
+    }
+
+    .diff-table td,
+    .diff-table th {
+      padding: 0.4rem 0.5rem;
+    }
+  }
+</style>

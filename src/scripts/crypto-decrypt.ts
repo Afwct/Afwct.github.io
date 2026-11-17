@@ -9,12 +9,6 @@ import {
   preserveBigInts,
   randomSessionKey,
 } from "../lib/cryptoEnvelope"
-import {
-  diffJson,
-  formatValue,
-  summarizeDiff,
-  type DiffEntry,
-} from "../lib/jsonDiff"
 import { toast } from "../lib/toast"
 
 /**
@@ -241,166 +235,6 @@ function initJwt(): void {
   })
 }
 
-/** 差异表格的各处挂载点 */
-interface DiffRefs {
-  root: HTMLElement
-  summary: HTMLElement
-  tableWrap: HTMLElement
-  body: HTMLElement
-  more: HTMLElement
-}
-
-const DIFF_LIMIT = 200
-
-const DIFF_MARKER: Record<DiffEntry["kind"], string> = {
-  added: "+",
-  removed: "−",
-  changed: "~",
-}
-
-/** 建一个单元格 */
-function cell(className: string, text = ""): HTMLTableCellElement {
-  const td = document.createElement("td")
-  td.className = className
-  if (text) {
-    td.textContent = text
-    td.title = text
-  }
-  return td
-}
-
-/** 把差异渲染成「状态 / 路径 / 左侧 / 右侧」四列表格 */
-function renderDiff(refs: DiffRefs, entries: DiffEntry[]): void {
-  const summary = summarizeDiff(entries)
-
-  refs.body.textContent = ""
-  refs.more.hidden = true
-  delete refs.summary.dataset.state
-
-  if (!entries.length) {
-    refs.summary.textContent = "两侧 JSON 完全一致"
-    refs.tableWrap.hidden = true
-    refs.root.hidden = false
-    return
-  }
-
-  refs.summary.textContent = `共 ${summary.total} 处差异：新增 ${summary.added} · 缺失 ${summary.removed} · 变更 ${summary.changed}`
-
-  const fragment = document.createDocumentFragment()
-  for (const entry of entries.slice(0, DIFF_LIMIT)) {
-    const row = document.createElement("tr")
-    row.className = `diff-row diff-row--${entry.kind}`
-
-    const marker = cell("diff-marker", DIFF_MARKER[entry.kind])
-    const path = cell("diff-path", entry.path)
-
-    // 右侧新增时左侧留空，左侧独有时右侧留空 —— 空白本身就是信息
-    const leftCell = cell("diff-value diff-value--left")
-    const rightCell = cell("diff-value diff-value--right")
-    if (entry.kind !== "added") {
-      leftCell.textContent = formatValue(entry.left)
-      leftCell.title = leftCell.textContent
-    }
-    if (entry.kind !== "removed") {
-      rightCell.textContent = formatValue(entry.right)
-      rightCell.title = rightCell.textContent
-    }
-
-    row.append(marker, path, leftCell, rightCell)
-    fragment.appendChild(row)
-  }
-  refs.body.appendChild(fragment)
-
-  if (entries.length > DIFF_LIMIT) {
-    refs.more.hidden = false
-    refs.more.textContent = `… 还有 ${entries.length - DIFF_LIMIT} 处未显示（结果过长，已截断）`
-  }
-
-  refs.tableWrap.hidden = false
-  refs.root.hidden = false
-}
-
-/** 对比失败时只显示一行提示，不显示表格 */
-function renderDiffError(refs: DiffRefs, message: string): void {
-  refs.body.textContent = ""
-  refs.summary.textContent = `无法对比：${message}`
-  refs.summary.dataset.state = "err"
-  refs.tableWrap.hidden = true
-  refs.more.hidden = true
-  refs.root.hidden = false
-}
-
-function initDiff(): void {
-  const leftEl = el<HTMLTextAreaElement>("diff-left")
-  const rightEl = el<HTMLTextAreaElement>("diff-right")
-  const runBtn = el<HTMLButtonElement>("diff-run")
-  const clearBtn = el<HTMLButtonElement>("diff-clear")
-
-  const refs: DiffRefs = {
-    root: el<HTMLElement>("diff-output") as HTMLElement,
-    summary: el<HTMLElement>("diff-summary") as HTMLElement,
-    tableWrap: el<HTMLElement>("diff-table-wrap") as HTMLElement,
-    body: el<HTMLElement>("diff-body") as HTMLElement,
-    more: el<HTMLElement>("diff-more") as HTMLElement,
-  }
-
-  if (
-    !leftEl ||
-    !rightEl ||
-    !runBtn ||
-    !refs.root ||
-    !refs.summary ||
-    !refs.tableWrap ||
-    !refs.body ||
-    !refs.more
-  ) {
-    return
-  }
-
-  const parseSide = (raw: string, side: string): unknown => {
-    const text = raw.trim()
-    if (!text) throw new Error(`${side}还没有内容`)
-    try {
-      // 与页面其余部分一致：先给超范围整数补引号，避免末位被改掉造成假差异
-      return JSON.parse(preserveBigInts(text))
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      throw new Error(`${side}不是合法 JSON：${message}`)
-    }
-  }
-
-  runBtn.addEventListener("click", () => {
-    try {
-      const left = parseSide(leftEl.value, "左侧")
-      const right = parseSide(rightEl.value, "右侧")
-      const entries = diffJson(left, right)
-      renderDiff(refs, entries)
-
-      const summary = summarizeDiff(entries)
-      if (summary.total === 0) {
-        toast.success("对比完成", { description: "两侧 JSON 完全一致" })
-      } else {
-        toast.info("发现差异", {
-          description: `共 ${summary.total} 处：新增 ${summary.added} / 缺失 ${summary.removed} / 变更 ${summary.changed}`,
-        })
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
-      renderDiffError(refs, message)
-      toast.error("对比失败", { description: message })
-    }
-  })
-
-  clearBtn?.addEventListener("click", () => {
-    leftEl.value = ""
-    rightEl.value = ""
-    refs.body.textContent = ""
-    refs.more.hidden = true
-    refs.tableWrap.hidden = true
-    refs.root.hidden = true
-  })
-}
-
 function checkCryptoSupport(): void {
   const banner = el<HTMLDivElement>("crypto-env-banner")
   if (!banner) return
@@ -415,5 +249,4 @@ function checkCryptoSupport(): void {
 initDecrypt()
 initEncrypt()
 initJwt()
-initDiff()
 checkCryptoSupport()

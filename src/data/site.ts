@@ -74,4 +74,10 @@ export const notes = [
     date: "2026",
     href: "/notes/crypto",
   },
+  {
+    title: "JSON 工具",
+    summary: "JSON 格式化（JSON 或 JS 对象字面量）与按路径逐项对比差异。",
+    date: "2026",
+    href: "/notes/json",
+  },
 ] as const
