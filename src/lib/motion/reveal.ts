@@ -13,11 +13,17 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
  * 所有「初始隐藏」都在 JS 里设置，因此禁用 JS 时内容照常可见。
  */
 
-const START = "top 85%"
+/** 触发点提前到 92%：元素刚露头就开始动，减少"盯着它等"的突兀感 */
+const START = "top 92%"
 
 type RevealMode = "up" | "down" | "left" | "right" | "mask" | "scale"
 
-/** 起始态：带裁切的揭示比方块淡入更有"揭开"感 */
+/**
+ * 默认揭示用「淡入上浮」而不是裁切揭开。
+ *
+ * 裁切（clip-path）在整块卡片上会形成一道硬边扫过，观感偏"啪一下"；
+ * 淡入 + 轻微上浮与轻微放大更柔和。需要裁切效果的仍可用 data-reveal="mask"。
+ */
 function fromState(mode: RevealMode): gsap.TweenVars {
   switch (mode) {
     case "mask":
@@ -32,20 +38,21 @@ function fromState(mode: RevealMode): gsap.TweenVars {
       return { opacity: 0, scale: 0.94 }
     case "up":
     default:
-      return { opacity: 0, y: 24, clipPath: "inset(0% 0% 100% 0%)" }
+      // 无裁切：只做透明度 + 位移 + 极轻微的缩放
+      return { opacity: 0, y: 20, scale: 0.995 }
   }
 }
 
 function toState(mode: RevealMode): gsap.TweenVars {
   const base: gsap.TweenVars = {
     opacity: 1,
-    duration: 0.9,
-    ease: "power4.out",
-    // 收尾清掉 clip-path，避免给后代留下多余的包含块
+    duration: 1.2,
+    // sine.out 起步最软、收尾最缓，配合较长时长不会有"弹出来"的感觉
+    ease: "sine.out",
     clearProps: "clipPath",
   }
   if (mode === "scale") return { ...base, scale: 1 }
-  return { ...base, x: 0, y: 0 }
+  return { ...base, x: 0, y: 0, scale: 1 }
 }
 
 /** 标题逐行遮罩揭示（配合 .split-line 的 CSS 遮罩容器） */
@@ -103,17 +110,17 @@ function setupStaggerGroups(): void {
     const items = gsap.utils.toArray<HTMLElement>(":scope > *", container)
     if (!items.length) return
 
-    gsap.set(items, { opacity: 0, y: 28 })
+    gsap.set(items, { opacity: 0, y: 16 })
     ScrollTrigger.batch(items, {
-      start: "top 88%",
+      start: START,
       once: true,
       onEnter: (batch) =>
         gsap.to(batch, {
           opacity: 1,
           y: 0,
-          duration: 0.75,
-          ease: "power3.out",
-          stagger: 0.08,
+          duration: 1,
+          ease: "sine.out",
+          stagger: 0.1,
           overwrite: true,
         }),
     })
@@ -127,21 +134,21 @@ function setupCards(): void {
 
   gsap.set(cards, {
     opacity: 0,
-    y: 40,
-    rotateX: 8,
+    y: 24,
+    rotateX: 6,
     transformPerspective: 900,
   })
 
   ScrollTrigger.batch(cards, {
-    start: "top 90%",
+    start: START,
     once: true,
     onEnter: (batch) =>
       gsap.to(batch, {
         opacity: 1,
         y: 0,
         rotateX: 0,
-        duration: 0.75,
-        ease: "power3.out",
+        duration: 1,
+        ease: "sine.out",
         stagger: 0.08,
         overwrite: true,
       }),

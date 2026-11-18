@@ -10,6 +10,7 @@ import {
   randomSessionKey,
 } from "../lib/cryptoEnvelope"
 import { toast } from "../lib/toast"
+import { stashDiffLeft } from "../lib/diffHandoff"
 
 /**
  * 响应体解密 Demo 的页面交互
@@ -76,6 +77,7 @@ function initDecrypt(): void {
   const clearBtn = el<HTMLButtonElement>("crypto-clear")
   const sampleBtn = el<HTMLButtonElement>("crypto-sample")
   const copyBtn = el<HTMLButtonElement>("crypto-copy")
+  const diffLink = el<HTMLAnchorElement>("crypto-diff-link")
   const cryptoOutput = el<HTMLPreElement>("crypto-output")
 
   if (!envelopeEl || !keyEl || !outputEl || !decryptBtn) return
@@ -86,6 +88,11 @@ function initDecrypt(): void {
     if (copyBtn) copyBtn.disabled = !lastPlain
   }
   syncCopyState()
+
+  // 跳到 JSON 对比页时把这次的解密结果带过去（放在「左侧」输入框）
+  diffLink?.addEventListener("click", () => {
+    stashDiffLeft(lastPlain)
+  })
 
   copyBtn?.addEventListener("click", () => {
     if (!lastPlain) return

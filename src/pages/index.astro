@@ -12,8 +12,7 @@ import { site, projects, notes } from "../data/site"
           你好，我是 <span class="text-accent">{site.name}</span>
         </h1>
         <p class="home-hero__desc lead" data-hero-subtitle>
-          在这里记录项目、笔记与实验。站点由 Astro 构建，动效由 GSAP
-          驱动，发布于 {site.domain}。
+          如果你也喜欢世界第一公主殿下，那么我们一定会成为好朋友的！
         </p>
         <div class="home-hero__cta" data-hero-cta>
           <a href="/projects" class="btn" data-magnetic>查看项目</a>
@@ -21,20 +20,27 @@ import { site, projects, notes } from "../data/site"
         </div>
       </div>
       <div class="home-hero__visual" data-hero-visual aria-hidden="true">
-        <div class="orbit" data-orbit data-parallax="0.08" data-drag>
+        <div class="orbit" data-orbit data-parallax="0.08">
           <span class="orbit__ring"></span>
+          <!-- 兜底：同一份场景在构建期渲染的静态 SVG。canvas 画出第一帧后隐藏。 -->
+          <img
+            class="hero-model__fallback"
+            src="/hero-model.svg"
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+          />
+          <canvas class="hero-model" data-hero-model></canvas>
           <span class="orbit__dot orbit__dot--1"></span>
           <span class="orbit__dot orbit__dot--2"></span>
           <span class="orbit__dot orbit__dot--3"></span>
         </div>
-        <div class="orbit__core">AFWCT</div>
       </div>
     </section>
 
     <div class="container"><div class="divider" data-line></div></div>
 
     <section class="section container" data-stats>
-      <p class="section-label" data-animate>概览</p>
       <div class="stats">
         <div class="stats__item" data-stat>
           <span class="stats__num">欢</span>
@@ -94,10 +100,10 @@ import { site, projects, notes } from "../data/site"
           <p class="section-label" data-animate>笔记</p>
           <h2 data-split>阅读与备忘</h2>
         </div>
-        <ul class="note-list">
+        <ul class="note-list" data-stagger>
           {
             notes.map((n) => (
-              <li data-animate>
+              <li>
                 <a href={n.href} class="note-list__item">
                   <span class="note-list__date">{n.date}</span>
                   <span class="note-list__title">{n.title}</span>
@@ -111,6 +117,8 @@ import { site, projects, notes } from "../data/site"
     </section>
   </div>
 </BaseLayout>
+
+<script src="../scripts/hero-model.ts"></script>
 
 <style>
   .text-accent {
@@ -145,6 +153,9 @@ import { site, projects, notes } from "../data/site"
 
   .home-hero__visual {
     position: relative;
+    /* 必须给确定宽度：子元素全是 absolute，配合 justify-self: center
+       会让网格项收缩到 0，整个主视觉（含三个光点与模型画布）就塌成一点 */
+    width: 100%;
     aspect-ratio: 1;
     max-width: 380px;
     justify-self: center;
@@ -155,15 +166,49 @@ import { site, projects, notes } from "../data/site"
     inset: 0;
   }
 
+  /* 静态兜底 SVG：canvas 没画出来时它就是最终画面 */
+  .hero-model__fallback {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  /* canvas 出第一帧后隐藏兜底，避免两层重叠 */
+  .orbit[data-model-state="ready"] .hero-model__fallback {
+    display: none;
+  }
+
+  /* Zdog 画布铺满 .orbit，压在兜底图之上、光点之下 */
+  .hero-model {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    /* 拖拽旋转需要吃掉手势，否则触屏会变成页面滚动 */
+    touch-action: none;
+    cursor: grab;
+  }
+
+  .hero-model:active {
+    cursor: grabbing;
+  }
+
   .orbit__ring {
     position: absolute;
     inset: 8%;
+    z-index: 0;
     border: 1px dashed rgba(110, 231, 183, 0.35);
     border-radius: 50%;
   }
 
   .orbit__dot {
     position: absolute;
+    z-index: 3;
     width: 10px;
     height: 10px;
     background: var(--accent);
@@ -184,22 +229,6 @@ import { site, projects, notes } from "../data/site"
     bottom: 30%;
     right: 10%;
     background: var(--accent-warm);
-  }
-
-  .orbit__core {
-    position: absolute;
-    inset: 28%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.5rem;
-    letter-spacing: 0.08em;
-    color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 50%;
   }
 
   .divider {
@@ -226,8 +255,7 @@ import { site, projects, notes } from "../data/site"
   .stats__num {
     display: block;
     font-family: var(--font-display);
-    font-size: 1.75rem;
-    font-weight: 800;
+    font-size: 3rem;
     color: var(--accent);
     margin-bottom: 0.25rem;
   }
@@ -281,7 +309,8 @@ import { site, projects, notes } from "../data/site"
   }
 
   .note-list__title {
-    font-family: var(--font-display);
+    /* 16px 属于小字号，用文黑而不是行楷 */
+    font-family: var(--font-ui);
     font-weight: 700;
     color: var(--text);
   }

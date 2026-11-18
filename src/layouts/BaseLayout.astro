@@ -22,8 +22,15 @@ const canonicalUrl = new URL(Astro.url.pathname, site.url).href
     <meta charset="utf-8" />
     <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
     <link rel="apple-touch-icon" href="/favicon.jpg" />
-    <!-- 首屏标题用的显示字体：提前拉取，减少字体到位前的替换闪烁。
+    <!-- 两套字体都参与首屏：行楷管标题、文黑管正文与小字，都提前拉取以减少替换闪烁。
          字体预加载即使同源也必须带 crossorigin。 -->
+    <link
+      rel="preload"
+      href="/fonts/HYXingHeJianDui-85U.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
     <link
       rel="preload"
       href="/fonts/HYWenHei-75W.woff2"

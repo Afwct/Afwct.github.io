@@ -3,8 +3,10 @@ import {
   diffJson,
   formatValue,
   summarizeDiff,
+  toTextDiff,
   type DiffEntry,
 } from "../lib/jsonDiff"
+import { takeDiffLeft } from "../lib/diffHandoff"
 import { toast } from "../lib/toast"
 
 function el<T extends HTMLElement>(id: string): T | null {
@@ -118,14 +120,11 @@ const DIFF_MARKER: Record<DiffEntry["kind"], string> = {
   changed: "~",
 }
 
-/** 建一个单元格 */
+/** 建一个单元格（内容完整展示，故不设 title 提示） */
 function cell(className: string, text = ""): HTMLTableCellElement {
   const td = document.createElement("td")
   td.className = className
-  if (text) {
-    td.textContent = text
-    td.title = text
-  }
+  if (text) td.textContent = text
   return td
 }
 
@@ -159,11 +158,9 @@ function renderDiff(refs: DiffRefs, entries: DiffEntry[]): void {
     const rightCell = cell("diff-value diff-value--right")
     if (entry.kind !== "added") {
       leftCell.textContent = formatValue(entry.left)
-      leftCell.title = leftCell.textContent
     }
     if (entry.kind !== "removed") {
       rightCell.textContent = formatValue(entry.right)
-      rightCell.title = rightCell.textContent
     }
 
     row.append(marker, pathCell, leftCell, rightCell)
@@ -195,6 +192,7 @@ function initDiff(): void {
   const rightEl = el<HTMLTextAreaElement>("diff-right")
   const runBtn = el<HTMLButtonElement>("diff-run")
   const clearBtn = el<HTMLButtonElement>("diff-clear")
+  const copyBtn = el<HTMLButtonElement>("diff-copy")
 
   const refs: DiffRefs = {
     root: el<HTMLElement>("diff-output") as HTMLElement,
@@ -217,6 +215,27 @@ function initDiff(): void {
     return
   }
 
+  /** 当前差异列表；为空时「复制差异」不可用 */
+  let lastEntries: DiffEntry[] = []
+  const syncCopy = () => {
+    if (copyBtn) copyBtn.disabled = lastEntries.length === 0
+  }
+  syncCopy()
+
+  copyBtn?.addEventListener("click", () => {
+    if (!lastEntries.length) return
+    copyText(toTextDiff(lastEntries))
+  })
+
+  // 从「响应体解密」跳过来时会把解密结果交接过来，落到左侧输入框（取一次即失效）
+  const handoff = takeDiffLeft()
+  if (handoff) {
+    leftEl.value = handoff
+    toast.info("已带入解密结果", {
+      description: "在右侧粘贴另一份 JSON 即可开始对比",
+    })
+  }
+
   /** 两侧都走同一套解析：JSON 或 JS 对象字面量都能收 */
   const parseSide = (raw: string, side: string): unknown => {
     const result = formatJsonInput(raw)
@@ -229,6 +248,8 @@ function initDiff(): void {
       const left = parseSide(leftEl.value, "左侧")
       const right = parseSide(rightEl.value, "右侧")
       const entries = diffJson(left, right)
+      lastEntries = entries
+      syncCopy()
       renderDiff(refs, entries)
 
       const summary = summarizeDiff(entries)
@@ -241,6 +262,8 @@ function initDiff(): void {
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
+      lastEntries = []
+      syncCopy()
       renderDiffError(refs, message)
       toast.error("对比失败", { description: message })
     }
@@ -250,6 +273,8 @@ function initDiff(): void {
     leftEl.value = ""
     rightEl.value = ""
     refs.body.textContent = ""
+    lastEntries = []
+    syncCopy()
     refs.more.hidden = true
     refs.tableWrap.hidden = true
     refs.root.hidden = true

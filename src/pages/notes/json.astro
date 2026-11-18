@@ -86,6 +86,14 @@ const crumbs = noteBreadcrumbs("JSON 工具")
         <button id="diff-clear" type="button" class="btn btn--ghost">
           清空
         </button>
+        <button
+          id="diff-copy"
+          type="button"
+          class="btn btn--ghost json-copy"
+          disabled
+        >
+          复制差异
+        </button>
       </div>
 
       <div id="diff-output" class="diff-output" hidden>
@@ -221,7 +229,11 @@ const crumbs = noteBreadcrumbs("JSON 工具")
   #json-diff {
     scroll-margin-top: calc(var(--header-h) + 1.25rem);
   }
+</style>
 
+<style is:global>
+  /* 差异结果由脚本动态生成，拿不到 Astro 的 scoped 属性（data-astro-cid-*），
+     所以这一整块必须用全局样式，否则 td / tr / 标记列全部收不到样式。 */
   /* ---- 对比结果：表格分栏 ---- */
   .diff-output {
     margin-top: 1.25rem;
@@ -237,35 +249,32 @@ const crumbs = noteBreadcrumbs("JSON 工具")
     color: #f87171;
   }
 
+  /* 不固定高度：让差异表随内容自然展开，不出现内部滚动条。
+     外框交给单元格边框画（配合 border-collapse 只有 1px），
+     这里只用 overflow 把表格的四角裁成圆角。 */
   .diff-table-wrap {
-    max-height: 26rem;
-    overflow: auto;
     background: var(--bg-elevated);
-    border: 1px solid var(--border);
     border-radius: 8px;
+    overflow: hidden;
   }
 
   .diff-table {
     width: 100%;
     border-collapse: collapse;
     font-family: ui-monospace, Consolas, monospace;
-    font-size: 0.8rem;
-    line-height: 1.55;
+    font-size: 0.9rem;
+    line-height: 1.6;
   }
 
   .diff-table th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.72rem;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 0.04em;
     text-align: left;
     white-space: nowrap;
     color: var(--text-muted);
     background: var(--surface);
-    border-bottom: 1px solid var(--border);
   }
 
   .diff-table th:nth-child(1) {
@@ -276,15 +285,37 @@ const crumbs = noteBreadcrumbs("JSON 工具")
     width: 40%;
   }
 
-  .diff-table td {
-    padding: 0.45rem 0.75rem;
-    vertical-align: top;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    word-break: break-all;
+  /* 状态与路径两列：水平、垂直都居中 */
+  .diff-table th:nth-child(1),
+  .diff-table th:nth-child(2),
+  .diff-table td:nth-child(1),
+  .diff-table td:nth-child(2) {
+    text-align: center;
+    vertical-align: middle;
   }
 
-  .diff-table tr:last-child td {
-    border-bottom: 0;
+  .diff-table td {
+    padding: 0.5rem 0.8rem;
+    vertical-align: top;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  /* 单元格全边框：行列都有分隔线。
+     --border 只有 8% 白，在 bg-elevated 上几乎看不见，这里单独用显眼的线条色。 */
+  .diff-table th,
+  .diff-table td {
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  /* 表头与数据行之间再重一点，层次更清楚 */
+  .diff-table th {
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+
+  .diff-path,
+  .diff-value {
+    user-select: text;
   }
 
   .diff-marker {
@@ -350,7 +381,7 @@ const crumbs = noteBreadcrumbs("JSON 工具")
 
   @media (max-width: 640px) {
     .diff-table {
-      font-size: 0.74rem;
+      font-size: 0.84rem;
     }
 
     .diff-table th:nth-child(2) {
@@ -359,7 +390,7 @@ const crumbs = noteBreadcrumbs("JSON 工具")
 
     .diff-table td,
     .diff-table th {
-      padding: 0.4rem 0.5rem;
+      padding: 0.45rem 0.55rem;
     }
   }
 </style>

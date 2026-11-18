@@ -100,13 +100,18 @@ export function summarizeDiff(entries: DiffEntry[]): DiffSummary {
   )
 }
 
-/** 把值转成适合单行展示的文本 */
+/**
+ * 把值转成表格里展示的文本。
+ *
+ * 对象/数组按 2 空格缩进展开，配合单元格的 `white-space: pre-wrap`
+ * 直接在表里看全内容；不再截断——截断会让用户看不到真实差异。
+ */
 export function formatValue(value: unknown): string {
   if (value === undefined) return "(无)"
   if (typeof value === "string") return JSON.stringify(value)
-  if (typeof value === "object" && value !== null) {
-    const json = JSON.stringify(value)
-    return json.length > 60 ? `${json.slice(0, 57)}…` : json
+  if (value === null) return "null"
+  if (typeof value === "object") {
+    return JSON.stringify(value, null, 2) ?? "null"
   }
   return String(value)
 }
@@ -122,4 +127,49 @@ export function describeDiff(entry: DiffEntry): string {
     default:
       return `${entry.path}: ${formatValue(entry.left)} → ${formatValue(entry.right)}`
   }
+}
+
+/** 导出用的一行式紧凑值：保证每条差异占一行，方便粘贴到聊天/工单 */
+function compactValue(value: unknown): string {
+  if (value === undefined) return "(无)"
+  if (typeof value === "string") return JSON.stringify(value)
+  if (value === null) return "null"
+  if (typeof value === "object") return JSON.stringify(value) ?? "null"
+  return String(value)
+}
+
+const TEXT_MARKER: Record<DiffKind, string> = {
+  added: "+",
+  removed: "-",
+  changed: "~",
+}
+
+/**
+ * 把差异转成可直接粘贴的纯文本（每条一行）。
+ *
+ * 与表格视图的区别：这里用紧凑 JSON，多行缩进会把"一条一行"打散。
+ */
+export function toTextDiff(entries: DiffEntry[]): string {
+  if (!entries.length) return "两侧 JSON 完全一致"
+
+  const summary = summarizeDiff(entries)
+  const lines = [
+    `共 ${summary.total} 处差异：新增 ${summary.added} · 缺失 ${summary.removed} · 变更 ${summary.changed}`,
+    "",
+  ]
+
+  for (const entry of entries) {
+    const marker = TEXT_MARKER[entry.kind]
+    if (entry.kind === "added") {
+      lines.push(`${marker} ${entry.path} = ${compactValue(entry.right)}`)
+    } else if (entry.kind === "removed") {
+      lines.push(`${marker} ${entry.path} = ${compactValue(entry.left)}`)
+    } else {
+      lines.push(
+        `${marker} ${entry.path}: ${compactValue(entry.left)} → ${compactValue(entry.right)}`,
+      )
+    }
+  }
+
+  return lines.join("\n")
 }

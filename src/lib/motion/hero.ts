@@ -99,7 +99,9 @@ export function setupHero(): void {
     )
   }
 
-  // 轨道视觉：入场放大，随后交给可被拖拽接管的自转
+  // 主视觉入场：只做缩放淡入。
+  // 自转已交给 Zdog 模型自己（canvas 里的 illo.rotate），这里不再旋转 .orbit，
+  // 否则虚线环、光点会和模型各转各的。
   if (orbit) {
     gsap.fromTo(
       orbit,
@@ -112,7 +114,6 @@ export function setupHero(): void {
         transformOrigin: "50% 50%",
       },
     )
-    gsap.delayedCall(0.6, () => startOrbitSpin(orbit))
   }
 
   // 首页视觉随指针微幅平移，制造纵深

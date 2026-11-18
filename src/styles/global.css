@@ -1,9 +1,25 @@
+/* 汉仪星翰简对 85U（本地字体，随站点发布在 /fonts/ 下）
+   全量字库（10479 字形），usWeightClass = 400，即常规字重。
+   站点里标题用到 700/800、按钮与标签用到 600，浏览器会在这一份字面上合成加粗；
+   若觉得合成加粗糊，可把下面的 font-weight 改成 `400 900`，那样一律用原字重渲染。 */
+@font-face {
+  font-family: "HYXingHeJianDui";
+  src:
+    url("/fonts/HYXingHeJianDui-85U.woff2") format("woff2"),
+    url("/fonts/HYXingHeJianDui-85U.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @font-face {
   font-family: "HYWenHei";
   src:
     url("/fonts/HYWenHei-75W.woff2") format("woff2"),
     url("/fonts/HYWenHei-75W.ttf") format("truetype");
-  font-weight: 700;
+  /* 用字重区间覆盖全部字重：这样 400/500/600/700 都直接用这一个字面，
+     不会因为"找不到对应字重"而走合成加粗（小字上合成加粗最容易糊）。 */
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -19,8 +35,12 @@
   --accent-dim: #34d399;
   --accent-warm: #fbbf24;
   --glow: rgba(110, 231, 183, 0.15);
-  --font-display: "HYWenHei", system-ui, sans-serif;
-  --font-body: "HYWenHei", system-ui, sans-serif;
+  /* 行楷只用于大字号（标题 / logo / 数字）：12–14px 时笔画会粘连 */
+  --font-display: "HYXingHeJianDui", system-ui, sans-serif;
+  /* 正文与小字号统一用文黑 75W：黑体小字号清晰，系统字体作为兜底 */
+  --font-body: "HYWenHei", system-ui, "Microsoft YaHei", sans-serif;
+  /* 小字号控件（按钮、标签等）与正文同源，单独留一个语义令牌便于以后细分 */
+  --font-ui: var(--font-body);
   --radius: 12px;
   --max-width: 1120px;
   --header-h: 72px;
@@ -73,7 +93,7 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: normal;
   line-height: 1.15;
   margin: 0 0 0.5em;
   letter-spacing: -0.02em;
@@ -112,7 +132,8 @@ p strong,
 
 .section-label {
   display: inline-block;
-  font-family: var(--font-display);
+  /* 小字号：用系统字体，避免行楷笔画粘连 */
+  font-family: var(--font-ui);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -127,7 +148,7 @@ p strong,
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  font-family: var(--font-display);
+  font-family: var(--font-ui);
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--bg);
@@ -253,6 +274,14 @@ p strong,
 
 /* 卡片：高光扫过 + 指针光斑 + 内层视差 */
 .card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* 所有带 data-card 的容器都要裁掉装饰层。
+   .card-shine 用 inset-inline: -60% 撑出两侧，父级不裁剪就会横向溢出 ——
+   联系页的卡片只有 data-card、没有 .card 类，曾因此撑出横向滚动条。 */
+[data-card] {
   position: relative;
   overflow: hidden;
 }
