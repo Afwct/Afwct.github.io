@@ -84,9 +84,11 @@ function initFormatter(): void {
       description:
         result.source === "js-literal"
           ? "已把对象字面量转换为 JSON"
-          : result.precisionProtected
-            ? "已保留超范围整数的原值"
-            : "已按 2 空格缩进",
+          : result.source === "escaped-json"
+            ? "已先还原被转义的引号"
+            : result.precisionProtected
+              ? "已保留超范围整数的原值"
+              : "已按 2 空格缩进",
     })
   })
 

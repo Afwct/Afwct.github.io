@@ -15,7 +15,7 @@ import { preserveBigInts } from "./cryptoEnvelope"
  * 否则 JSON.parse 会把 870273276616777308 悄悄改成 ...300。
  */
 
-export type FormatSource = "json" | "js-literal"
+export type FormatSource = "json" | "escaped-json" | "js-literal"
 
 export interface FormatSuccess {
   ok: true
@@ -158,6 +158,20 @@ export function jsLiteralToJson(input: string): string {
   return out
 }
 
+/** 转义JSON还原 */
+function unescapeJsonText(raw: string): string | null {
+  // 没有任何转义序列就不可能是被转义过的文本
+  if (!/\\["\\/bfnrtu]/.test(raw)) return null
+  try {
+    const inner = JSON.parse(`"${raw}"`) as unknown
+    return typeof inner === "string" && inner.trim() !== raw.trim()
+      ? inner
+      : null
+  } catch {
+    return null
+  }
+}
+
 function pretty(value: unknown): string {
   return JSON.stringify(value, null, 2) ?? ""
 }
@@ -165,7 +179,7 @@ function pretty(value: unknown): string {
 /**
  * 解析并格式化输入。
  *
- * 先按严格 JSON 解析；失败再按 JS 对象字面量转换后解析。
+ * 依次尝试：严格 JSON → 被整体转义的 JSON → JS 对象字面量。
  */
 export function formatJsonInput(raw: string): FormatResult {
   const text = raw.trim()
@@ -186,7 +200,26 @@ export function formatJsonInput(raw: string): FormatResult {
     /* 继续尝试 JS 字面量 */
   }
 
-  /* ② JS 对象字面量 */
+  /* 被整体转义过的 JSON（{\"a\":1} → {"a":1}） */
+  const unescaped = unescapeJsonText(text)
+  if (unescaped) {
+    const unescapedText = unescaped.trim()
+    const unescapedSafe = preserveBigInts(unescapedText)
+    try {
+      const value = JSON.parse(unescapedSafe) as unknown
+      return {
+        ok: true,
+        value,
+        json: pretty(value),
+        source: "escaped-json",
+        precisionProtected: unescapedSafe !== unescapedText,
+      }
+    } catch {
+      /* 还原后仍不是 JSON，继续尝试对象字面量 */
+    }
+  }
+
+  /* JS 对象字面量 */
   const converted = jsLiteralToJson(text)
   const convertedSafe = preserveBigInts(converted)
   try {
@@ -208,7 +241,8 @@ export function formatJsonInput(raw: string): FormatResult {
         strictError instanceof Error ? strictError.message : String(strictError)
     }
 
-    const message = strictMessage || (error instanceof Error ? error.message : String(error))
+    const message =
+      strictMessage || (error instanceof Error ? error.message : String(error))
     return {
       ok: false,
       error: `${message}（既不是合法 JSON，也不是可转换的对象字面量）`,
