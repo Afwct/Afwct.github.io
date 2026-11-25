@@ -7,6 +7,7 @@ import {
   type DiffEntry,
 } from "../lib/jsonDiff"
 import { takeDiffLeft } from "../lib/diffHandoff"
+import { clearHistory, loadHistory, pushHistory, type HistoryEntry } from "../lib/jsonHistory"
 import { toast } from "../lib/toast"
 
 function el<T extends HTMLElement>(id: string): T | null {
@@ -50,6 +51,72 @@ function initFormatter(): void {
 
   if (!inputEl || !outputEl || !runBtn) return
 
+  /* ---------- 历史记录 ---------- */
+
+  const historyBtn = el<HTMLButtonElement>("fmt-history")
+  const historyPanel = el<HTMLDivElement>("fmt-history-panel")
+  const historyList = el<HTMLUListElement>("fmt-history-list")
+  const historyEmpty = el<HTMLParagraphElement>("fmt-history-empty")
+  const historyClear = el<HTMLButtonElement>("fmt-history-clear")
+
+  const formatTime = (at: number): string => {
+    const date = new Date(at)
+    const pad = (value: number) => String(value).padStart(2, "0")
+    return `${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+  }
+
+  /** 把一条记录塞回输入框并立即格式化，省去再点一次 */
+  const useEntry = (entry: HistoryEntry): void => {
+    inputEl.value = entry.text
+    inputEl.focus()
+    runBtn.click()
+  }
+
+  const renderHistory = (entries: HistoryEntry[]): void => {
+    if (!historyList || !historyEmpty) return
+
+    historyList.replaceChildren()
+    historyEmpty.hidden = entries.length > 0
+
+    for (const entry of entries) {
+      const item = document.createElement("li")
+      const button = document.createElement("button")
+      button.type = "button"
+      button.className = "json-history__item"
+      button.title = entry.text.slice(0, 400)
+
+      const time = document.createElement("span")
+      time.className = "json-history__time"
+      time.textContent = formatTime(entry.at)
+
+      const preview = document.createElement("span")
+      preview.className = "json-history__preview"
+      preview.textContent = entry.text.replace(/\s+/g, " ").slice(0, 120)
+
+      button.append(time, preview)
+      button.addEventListener("click", () => useEntry(entry))
+      item.append(button)
+      historyList.append(item)
+    }
+  }
+
+  historyBtn?.addEventListener("click", () => {
+    if (!historyPanel) return
+    const open = historyPanel.hidden
+    historyPanel.hidden = !open
+    historyBtn.setAttribute("aria-expanded", String(open))
+    if (open) renderHistory(loadHistory())
+  })
+
+  historyClear?.addEventListener("click", () => {
+    clearHistory()
+    renderHistory([])
+    toast.success("历史已清空")
+  })
+
+  // 首次进入时先渲染一次，面板展开即可用
+  renderHistory(loadHistory())
+
   /** 当前可复制的格式化结果；为空时复制按钮不可用 */
   let formatted = ""
   const syncCopy = () => {
@@ -79,6 +146,10 @@ function initFormatter(): void {
 
     outputEl.dataset.source = result.source
     show(outputEl, result.json, "ok")
+
+    // 记录到本地历史（去重、限 20 条）
+    const entries = pushHistory(inputEl.value)
+    if (!historyPanel?.hidden) renderHistory(entries)
 
     toast.success("格式化完成", {
       description:

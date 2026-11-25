@@ -44,6 +44,26 @@ const crumbs = noteBreadcrumbs("JSON 工具")
         <button id="fmt-copy" type="button" class="btn btn--ghost json-copy" disabled>
           复制
         </button>
+        <button
+          id="fmt-history"
+          type="button"
+          class="btn btn--ghost"
+          aria-expanded="false"
+          aria-controls="fmt-history-panel"
+        >
+          历史
+        </button>
+      </div>
+
+      <div id="fmt-history-panel" class="json-history" hidden>
+        <div class="json-history__head">
+          <span>最近格式化过的内容</span>
+          <button id="fmt-history-clear" type="button" class="json-history__clear">
+            清空历史
+          </button>
+        </div>
+        <ul id="fmt-history-list" class="json-history__list"></ul>
+        <p id="fmt-history-empty" class="json-history__empty">还没有历史记录</p>
       </div>
 
       <pre id="fmt-output" class="json-output" hidden></pre>
@@ -393,4 +413,102 @@ const crumbs = noteBreadcrumbs("JSON 工具")
       padding: 0.45rem 0.55rem;
     }
   }
+
+  /* 历史记录面板：条目由脚本动态创建，拿不到 scoped 属性，必须用全局样式 */
+  .json-history {
+    margin-top: 0.85rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-elevated);
+    /* 兜底：任何子元素意外超宽都不会顶破圆角边框 */
+    overflow: hidden;
+  }
+
+  .json-history__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .json-history__clear {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .json-history__clear:hover {
+    color: var(--accent);
+  }
+
+  .json-history__list {
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .json-history__item {
+    /* 用 grid 而不是 flex：<button> 做 flex 容器时部分浏览器会插一层匿名盒子，
+       里面的 min-width: 0 会失效，长文本就会顶出圆角边框。
+       minmax(0, 1fr) 明确允许预览列收缩到 0，省略号才生效。 */
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: 0.7rem;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    /* button 默认不继承字体，这里显式对齐站点正文 */
+    font: inherit;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color 0.18s ease,
+      background 0.18s ease;
+  }
+
+  .json-history__item:hover {
+    border-color: var(--accent);
+    background: var(--bg-elevated);
+  }
+
+  .json-history__time {
+    flex: none;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .json-history__preview {
+    min-width: 0;
+    max-width: 100%;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .json-history__empty {
+    margin: 0.6rem 0 0;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
 </style>
